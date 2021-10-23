@@ -60,4 +60,10 @@ while True:
 
     os.system(d'tar -cjf {date}.bz2 {date}.*.response')
     logging.info(f'Compress day results {date=}')
+
+    prev_date = query_date
     query_date += timedelta(days=1)
+    if query_date.year > prev_date.year:
+        break
+
+logging.info('Done!')
