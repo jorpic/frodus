@@ -28,7 +28,7 @@ DATA_DIR = 'results'
 if not os.path.exists(DATA_DIR):
     os.makedirs(DATA_DIR)
 
-query_date = datetime.strptime(sys.argv[1], '%Y-%m-%d')
+query_date = datetime.strptime(sys.argv[1], '%Y')
 logging.info(f'Starting from {query_date.date().isoformat()}')
 
 api = API()
