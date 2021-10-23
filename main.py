@@ -74,7 +74,7 @@ while True:
             break
 
     logging.info(f'Compress day results {date=}')
-    os.system(f'tar -cjf {DATA_DIR}/{date}.tar.bz2 {DATA_DIR}/{date}.*.response')
+    os.system(f'tar --remove-files -cjf {DATA_DIR}/{date}.tar.bz2 {DATA_DIR}/{date}.*.response')
 
     offset = 0
     prev_date = query_date
