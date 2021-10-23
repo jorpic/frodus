@@ -11,6 +11,7 @@ class API:
             'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:89.0) Gecko/20100101 Firefox/89.0',
             'Accept': 'application/json, text/javascript, */*; q=0.01',
             'Accept-Language': 'en-US,en;q=0.5',
+            'Accept-Encoding': 'gzip, deflate, br',
             'Content-Type': 'application/json; charset=utf-8',
             'Origin': 'https://bsr.sudrf.ru',
             'Referer': 'https://bsr.sudrf.ru/bigs/portal.html',
