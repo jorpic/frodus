@@ -31,6 +31,9 @@ if not os.path.exists(DATA_DIR):
 query_date = datetime.strptime(sys.argv[1], '%Y')
 logging.info(f'Starting from {query_date.date().isoformat()}')
 
+ip_addr = requests.get("https://ipinfo.io/ip").text
+logging.info(f'Fetching via {ip_addr=}')
+
 api = API()
 logging.info(f'With {api.uid=}')
 
