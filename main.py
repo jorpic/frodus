@@ -9,11 +9,12 @@ from datetime import datetime, timedelta
 from api import API
 import query
 
+query_date = sys.argv[1]
 
 logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s %(levelname)-8s %(message)s',
-    filename='frodus.log',
+    filename=f'{query_date}.log',
     filemode='w')
 
 console = logging.StreamHandler()
@@ -33,7 +34,7 @@ logging.info(f'Starting from {query_date.date().isoformat()}')
 api = API()
 logging.info(f'With {api.uid=}')
 
-delay = 6
+delay = 9
 while True:
     offset = 0
     while True:
