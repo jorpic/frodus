@@ -37,14 +37,13 @@ logging.info(f'With {api.uid=}')
 delay = 9
 while True:
     offset = 0
+    date = query_date.date().isoformat()
     while True:
         response = api.search(query.search(query_date, offset))
 
-        date = query_date.date().isoformat()
-        ts = int(datetime.now().timestamp())
-        file_name = f'{DATA_DIR}/{date}.{offset}.{ts}.bz2'
+        file_name = f'{DATA_DIR}/{date}.{offset}.response'
 
-        with bz2.open(file_name, "wb") as f:
+        with open(file_name, "wb") as f:
             f.write(response.content)
         logging.debug(f'Written to {file_name=} {len(response.content)=}')
 
@@ -59,4 +58,6 @@ while True:
         if offset >= total:
             break
 
+    os.system(d'tar -cjf {date}.bz2 {date}.*.response')
+    logging.info(f'Compress day results {date=}')
     query_date += timedelta(days=1)
