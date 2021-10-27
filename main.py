@@ -67,11 +67,11 @@ while True:
         with open(f'{year}.savepoint', 'w') as f:
             f.write(f'{date}.{total}.{offset}')
 
-        time.sleep(delay)
-
         offset += docs
         if offset >= total:
             break
+
+        time.sleep(delay)
 
     logging.info(f'Compress day results {date=}')
     os.system(f'tar --remove-files -cjf {DATA_DIR}/{date}.tar.bz2 {DATA_DIR}/{date}.*.response')
