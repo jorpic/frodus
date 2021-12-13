@@ -55,9 +55,11 @@ known_fields = yaml.safe_load(textwrap.dedent('''
         isArray: true
     case_common_event_result:
         isArray: true
+        isDictionary: true
 
     case_common_judge:
         duplicate: case_user_judge
+        isDictionary: true
 
     case_common_parts_m2_search:
         isArray: true
@@ -65,10 +67,13 @@ known_fields = yaml.safe_load(textwrap.dedent('''
         isArray: true
     case_common_parts_type:
         isArray: true
+        isDictionary: true
 
-    case_common_type: {}
+    case_common_type:
+        isDictionary: true
 
-    case_court_type: {}
+    case_court_type:
+        isDictionary: true
 
     case_court_type_cat:
         skip: true
@@ -77,7 +82,8 @@ known_fields = yaml.safe_load(textwrap.dedent('''
     case_doc_district_rf:
         isDictionary: true
 
-    case_doc_instance: {}
+    case_doc_instance:
+        isDictionary: true
 
     case_doc_kind:
         isDictionary: true
@@ -207,16 +213,23 @@ known_fields = yaml.safe_load(textwrap.dedent('''
         duplicate: u_case_common_article
 
     u_common_case_defendant_m:
+        isArray: true
         desc: ФИО, статья, результат дела?
 
     u_common_case_defendant_m_search:
         skip: true
-        duplicate: u_common_case_defendant_m
+        isArray: true
+        # duplicate: u_common_case_defendant_m
 
     u_common_case_defendant_name:
         desc: ФИО защитника
+        isArray: true
         isDictionary: true
     '''))
+
+
+last_id = {}
+dictionary = {}
 
 
 def process_doc(doc):
@@ -225,13 +238,14 @@ def process_doc(doc):
     # at the end of the loop remove duplicates from all array_fields
 
     doc_hash = doc['id']
-    print(doc_hash)
+    # print(doc_hash)
     new_doc = {}
     for f in doc['additionalFields']:
         name = f['name']
         if name in known_fields:
             f_desc = known_fields[name]
             val = f[f_desc.get('value', 'value')]
+
             if f_desc.get('isArray', False):
                 if name not in new_doc:
                     new_doc[name] = []
@@ -241,18 +255,28 @@ def process_doc(doc):
                     print(f'Conflicting field values {name=} {val=} {new_doc[name]=}')
                 else:
                     new_doc[name] = val
+
+            if f_desc.get('isDictionary', False):
+                if name not in dictionary:
+                    last_id[name] = 0
+                    dictionary[name] = {}
+
+                if val not in dictionary[name]:
+                    dictionary[name][val] = last_id[name]
+                    last_id[name] += 1
         else:
             print(f'Unknown field {name=} {f}')
 
     # check duplicates
 
     # delete skipped
-    for name in known_fields:
-        if name in new_doc:
-            if known_fields[name].get('skip', False):
-                del new_doc[name] # FIXME: k.get('new_name', name)
-            else:
-                print(name, str(new_doc[name])[:120])
+
+    # for name in known_fields:
+    #     if name in new_doc:
+    #         if known_fields[name].get('skip', False):
+    #             del new_doc[name] # FIXME: k.get('new_name', name)
+    #         else:
+    #             print(name, str(new_doc[name])[:120])
 
 
 def process_all(x):
@@ -296,3 +320,8 @@ for file_name in files:
                 #    print(e)
                 mark_as_processed(f.name)
     mark_as_processed(file_name)
+
+
+with open('dictionaries.yaml', 'w') as f:
+    yml = yaml.dump(dictionary, allow_unicode=True)
+    f.write(yml)

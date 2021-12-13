@@ -26,7 +26,7 @@ logging.getLogger('').addHandler(console)
 
 
 DATA_DIR = 'results'
-if not os.path.exists(DATA_DIR):
+if not os.path.isdir(DATA_DIR):
     os.makedirs(DATA_DIR)
 
 query_date = datetime.strptime(year, '%Y')
