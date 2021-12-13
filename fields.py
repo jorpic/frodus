@@ -267,6 +267,7 @@ known_fields = yaml.safe_load(textwrap.dedent('''
         desc: ФИО, статья, результат дела?
 
     u_common_case_defendant_m_search:
+        isArray: true
         duplicate: u_common_case_defendant_m
 
     u_common_case_defendant_name:
