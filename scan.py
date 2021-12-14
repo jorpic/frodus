@@ -33,18 +33,21 @@ def main():
         with tarfile.open(archive, 'r|bz2') as tar:
             for json_file in tar:
                 with tar.extractfile(json_file) as json_text:
-                    jsn = json.load(json_text)
-                    res = jsn['searchResult']
-
-                    for raw_doc in res['documents']:
-                        doc = build_doc(raw_doc)
-                        count += 1
-                        if 'case_user_document_text_tag' in doc:
-                            count_texts += 1
-                        check_duplicate_fields(doc)
-                        if check_for_double_doc(raw_doc):
-                            check_array_fields(raw_doc)
-                        build_dictionaries(raw_doc, dictionaries)
+                    try:
+                        jsn = json.load(json_text)
+                        res = jsn['searchResult']
+                    except json.decoder.JSONDecodeError as e:
+                        logging.error(f'in {json_file}: {e}')
+                    else:
+                        for raw_doc in res['documents']:
+                            doc = build_doc(raw_doc)
+                            count += 1
+                            if 'case_user_document_text_tag' in doc:
+                                count_texts += 1
+                            check_duplicate_fields(doc)
+                            if check_for_double_doc(raw_doc):
+                                check_array_fields(raw_doc)
+                            build_dictionaries(raw_doc, dictionaries)
 
     logging.info(f'{count} docs scanned')
     logging.info(f'{count_texts} texts found')
