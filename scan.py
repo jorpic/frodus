@@ -4,7 +4,6 @@ import os
 import sys
 import json
 import yaml
-import textwrap
 import tarfile
 import logging
 
@@ -126,9 +125,6 @@ def dump_dictionaries(path, dictionaries):
         logging.info(f'dumping dictionary {name}: {len(vals)}')
         with open(f'{path}/{name}.yaml', 'w') as f:
             yaml.dump(sorted(vals), f, allow_unicode = True)
-
-
-# TODO: check for array fields (single value only if not isArray)
 
 if __name__ == "__main__":
     main()

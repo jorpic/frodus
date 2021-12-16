@@ -277,10 +277,9 @@ known_fields = yaml.safe_load(textwrap.dedent('''
 '''))
 
 
-## FIXME: log unknown fields?
 def name_value(fld):
     name = fld['name']
-    val = fld[known_fields[name].get(name, 'value')]
-    if val:
+    val = fld[known_fields[name].get('value', 'value')]
+    if isinstance(val, str):
         val = val.strip()
     return (name, val)
