@@ -14,7 +14,6 @@ import textwrap
 known_fields = yaml.safe_load(textwrap.dedent('''
     case_common_doc_court:
         desc: Наименование суда
-        value: linkName
         isDictionary: true
 
     case_common_doc_entry_date:
@@ -147,7 +146,7 @@ known_fields = yaml.safe_load(textwrap.dedent('''
     case_document_load_date:
         desc: Дата загрузки дела
         value: dateValue
-        duplicate: case_doc_load_date
+        # duplicate: case_doc_load_date
 
     case_document_num_build:
         value: longValue
@@ -161,7 +160,7 @@ known_fields = yaml.safe_load(textwrap.dedent('''
 
     case_document_result_date:
         value: dateValue
-        duplicate: case_common_doc_result_date
+        # duplicate: case_common_doc_result_date
 
     case_document_results:
         desc: Результат
@@ -189,7 +188,7 @@ known_fields = yaml.safe_load(textwrap.dedent('''
     case_user_doc_court:
         desc: Наименование суда
         value: linkName
-        duplicate: case_common_doc_court
+        const: null
 
     case_user_doc_entry_date:
         value: dateValue
