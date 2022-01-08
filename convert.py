@@ -36,7 +36,7 @@ def main():
     if args.except_:
         except_fields = args.except_.split(',')
         fields = set(filter(lambda f: f not in except_fields, fields))
-    if args.only:
+    elif args.only:
         only_fields = args.only.split(',')
         fields = set(filter(lambda f: f in only_fields, fields))
 
@@ -45,7 +45,13 @@ def main():
     if args.format == 'yaml':
         for raw_doc in data_iterator.read_docs(files):
             doc = build_doc(raw_doc, fields)
-            dump_yaml({raw_doc['id']: doc}, sys.stdout)
+            doc = {raw_doc['id']: doc}
+            yaml.dump(
+                doc,
+                sys.stdout,
+                allow_unicode=True,
+                Dumper=yaml.CDumper)
+
     elif args.format == 'psql-tsv':
         tsv_writer = csv.writer(sys.stdout, dialect='tsv')
         for raw_doc in data_iterator.read_docs(files):
@@ -70,12 +76,6 @@ def build_doc(raw_doc, fields_to_extract):
                     else:
                         doc[name] = [val]
     return doc
-
-
-def dump_yaml(doc, file):
-    yaml_str = yaml.safe_dump(doc, allow_unicode=True)
-    file.write(yaml_str)
-
 
 class tsv(csv.Dialect):
     delimiter = '\t'
