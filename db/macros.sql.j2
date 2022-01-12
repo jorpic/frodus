@@ -1,7 +1,7 @@
 
 {% macro create_dictionary(name) %}
 create table if not exists {{ name }}(
-  id smallserial primary key,
+  id serial primary key,
   name text unique not null
 );
 {% endmacro %}
@@ -12,7 +12,10 @@ insert into {{ dict }} (name)
   select distinct trim(r.data->>'{{ field }}')
   from {{ raw_table }} r
   where
-    not exists (select 1 from {{ dict }} d
-      where trim(r.data->>'{{ field }}') = d.name
+    coalesce(trim(r.data->>'{{ field }}'), '') != ''
+    and not exists (
+      select 1
+        from {{ dict }} d
+        where trim(r.data->>'{{ field }}') = d.name
     );
 {% endmacro %}

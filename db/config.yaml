@@ -30,5 +30,3 @@ dictionaries:
     field: case_document_result
   - name: user_type
     field: case_user_type
-  - name: defendant_name
-    field: u_common_case_defendant_name
