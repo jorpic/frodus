@@ -1,0 +1,34 @@
+
+raw_table: docs
+
+dictionaries:
+  - name: court
+    field: case_common_doc_court
+  - name: doc_result
+    field: case_common_doc_result
+  - name: document_article
+    field: case_common_document_article
+  - name: document_type
+    field: case_common_document_type
+  - name: judge
+    field: case_common_judge
+  - name: parts_type
+    field: case_common_parts_type
+  - name: common_type
+    field: case_common_type
+  - name: court_type
+    field: case_court_type
+  - name: district_rf
+    field: case_doc_district_rf
+  - name: instance
+    field: case_doc_instance
+  - name: kind
+    field: case_doc_kind
+  - name: subject_rf_code
+    field: case_doc_subject_rf_code
+  - name: result
+    field: case_document_result
+  - name: user_type
+    field: case_user_type
+  - name: defendant_name
+    field: u_common_case_defendant_name

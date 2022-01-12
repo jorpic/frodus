@@ -1,0 +1,7 @@
+
+{% from 'macros.sql.j2' import create_dictionary, fill_dictionary %}
+
+{% for dict in dictionaries  %}
+  {{ create_dictionary(dict.name) }}
+  {{ fill_dictionary(dict.name, raw_table, dict.field) }}
+{% endfor %}
