@@ -6,8 +6,41 @@
 
 {%- for d in dictionaries  %}
   {{ create_dictionary(d.name) }}
-  {{ fill_dictionary(d.name, raw_table, d.field) }}
 {%- endfor %}
+
+with
+  aggregated_values as (
+    select
+{%- for d in dictionaries  %}
+      jsonb_object_agg(
+        coalesce(trim(data->>'{{ d.field }}'), ''),
+        null
+      ) as {{ d.name }},
+{%- endfor %}
+      1
+      from {{ raw_table }}
+  ),
+{%- for d in dictionaries  %}
+  {{ d.name }}_insert as (
+    insert into {{ d.name }} (value)
+      select new.value
+      from
+        aggregated_values vs,
+        jsonb_object_keys(vs.{{ d.name }}) new(value)
+      where new.value != ''
+        and not exists
+          (select 1 from {{ d.name }} dict where new.value = dict.value)
+    returning 1
+  ),
+{%- endfor %}
+  result as (
+    select null as dictionary, null as inserted
+{%- for d in dictionaries  %}
+    union all
+    select '{{ d.name }}', count(*) from {{ d.name }}_insert
+{%- endfor %}
+  )
+  select * from result;
 
 
 create table if not exists document_props(

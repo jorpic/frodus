@@ -7,20 +7,6 @@ create table if not exists {{ name }}(
 {% endmacro %}
 
 
-{% macro fill_dictionary(dict, raw_table, field) %}
-insert into {{ dict }} (value)
-  select distinct trim(r.data->>'{{ field }}')
-  from {{ raw_table }} r
-  where
-    coalesce(trim(r.data->>'{{ field }}'), '') != ''
-    and not exists (
-      select 1
-        from {{ dict }} d
-        where trim(r.data->>'{{ field }}') = d.value
-    );
-{% endmacro %}
-
-
 {% macro create_array(name) %}
 create table if not exists {{ name }}(
   doc_id int4 references document_props(id),
