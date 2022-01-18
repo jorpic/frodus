@@ -2,6 +2,8 @@
 {% from 'macros.sql.j2' import create_dictionary, fill_dictionary %}
 {% from 'macros.sql.j2' import create_array, fill_array %}
 
+{% set raw_table = config.raw_table %}
+
 {% for d in dictionaries  %}
   {{ create_dictionary(d.name) }}
   {{ fill_dictionary(d.name, raw_table, d.field) }}

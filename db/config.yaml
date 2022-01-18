@@ -1,6 +1,4 @@
 
-raw_table: raw_data
-
 dictionaries:
   - name: court
     field: case_common_doc_court
