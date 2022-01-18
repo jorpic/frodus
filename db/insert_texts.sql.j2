@@ -1,20 +1,11 @@
 create table if not exists document_text(
-  doc_id int4 references document_props(id),
+  doc_id bytea unique not null references document_props(id),
   value text not null
 );
 
-delete from {{ config.raw_table }} raw
-  where exists (
-    select 1
-      from document_props ps, document_text tx
-      where raw.id = ps.hash
-        and ps.id = tx.doc_id
-  );
-
 insert into document_text
   select
-    ps.id,
+    decode(raw.id, 'hex'),
     to_json(raw.data) #>> '{}'
-  from {{ config.raw_table }} raw, document_props ps
-  where raw.id = ps.hash
-;
+  from {{ config.raw_table }} raw
+  on conflict do nothing;

@@ -9,7 +9,7 @@ create table if not exists {{ name }}(
 
 {% macro create_array(name) %}
 create table if not exists {{ name }}(
-  doc_id int4 references document_props(id),
+  doc_id bytea not null references document_props(id),
   data text not null
 );
 {% endmacro %}
@@ -17,11 +17,9 @@ create table if not exists {{ name }}(
 {% macro fill_array(name, raw_table, field) %}
 insert into {{ name }}
   select
-    ps.id,
+    decode(id, 'hex'),
     json_array_elements_text(raw.data->'{{ field }}')
-  from {{ raw_table }} raw, document_props ps
-  where raw.id = ps.hash
-;
+  from {{ raw_table }} raw;
 
 create index if not exists {{ name }}_doc_id_idx
   on {{ name }}(doc_id);

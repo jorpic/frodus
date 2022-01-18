@@ -44,31 +44,34 @@ with
 
 
 create table if not exists document_props(
-  id serial primary key,
+  id bytea primary key,
 {%- for d in dictionaries  %}
   {{ d.field }} int4 references {{ d.name }},
 {%- endfor %}
   -- add non-dictionaries
-  hash text unique not null
+  dummy text
 );
 
 delete from {{ raw_table }} raw
-  where exists (select 1 from document_props where raw.id = hash);
+  where exists (
+    select 1
+      from document_props ps
+      where decode(raw.id, 'hex') = ps.id);
 
 insert into document_props
   select
-    nextval('document_props_id_seq'::regclass),
+    decode(raw.id, 'hex'),
 {%- for d in dictionaries  %}
     {{ d.name }}.id,
 {%- endfor %}
-    raw.id
+    null
   from
     {{ raw_table }} raw
 {%- for d in dictionaries  %}
     left outer join {{ d.name }}
       on ({{ d.name }}.value = trim(raw.data->>'{{ d.field }}'))
 {%- endfor %}
-  where true;
+  on conflict do nothing;
 
 
 {%- for a in arrays  %}
