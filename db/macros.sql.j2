@@ -37,6 +37,6 @@ insert into {{ name }}
   where raw.id = ps.hash
 ;
 
-create index if not exists {{ name }}_id_idx
+create index if not exists {{ name }}_doc_id_idx
   on {{ name }}(doc_id);
 {% endmacro %}

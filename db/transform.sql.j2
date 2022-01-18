@@ -4,6 +4,10 @@
 
 {%- set raw_table = config.raw_table %}
 
+delete from {{ raw_table }} raw
+  where exists (select 1 from document_props where raw.id = hash);
+
+
 {%- for d in dictionaries  %}
   {{ create_dictionary(d.name) }}
   {{ fill_dictionary(d.name, raw_table, d.field) }}
@@ -16,7 +20,7 @@ create table if not exists document_props(
   {{ d.field }} int4 references {{ d.name }},
 {%- endfor %}
   -- add non-dictionaries
-  hash text not null
+  hash text unique not null
 );
 
 insert into document_props
@@ -34,9 +38,6 @@ insert into document_props
 {%- endfor %}
   where true;
 
-
-create index if not exists document_props_hash_idx
-  on document_props(hash);
 
 
 {%- for a in arrays  %}

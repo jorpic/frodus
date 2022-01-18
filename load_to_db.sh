@@ -4,7 +4,7 @@ set -o pipefail
 
 DATA_FILES="$@"
 
-PSQL='psql frodus'
+PSQL='psql -v ON_ERROR_STOP=1 frodus'
 TABLE=raw_data_`date +%s`
 
 $PSQL <<EOF
@@ -15,6 +15,7 @@ EOF
 time \
   ./convert.py \
     --format tsv \
+    --skip-duplicates \
     --except case_user_document_text_tag \
     $DATA_FILES \
   | $PSQL -c "copy $TABLE from stdin"

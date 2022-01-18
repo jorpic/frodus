@@ -27,6 +27,9 @@ group.add_argument('--except', type=str, dest='except_',
                     help='Comma-separated list of fields to exclude.')
 group.add_argument('--only', type=str,
                     help='Comma-separated list of fields to include.')
+parser.add_argument('--skip-duplicates',
+                    default=False, action='store_true',
+                    help='Skip documents with duplicate hashes.')
 parser.add_argument('files', type=str, nargs='+',
                     help='Input data files.')
 
@@ -42,10 +45,18 @@ def main():
         only_fields = args.only.split(',')
         fields = set(filter(lambda f: f in only_fields, fields))
 
+    hashes = set()
+
     if args.format == 'yaml':
         for raw_doc, _  in data_iterator.read_docs(args.files):
+            doc_id = raw_doc['id']
+            if doc_id in hashes and args.skip_duplicates:
+                continue
+            else:
+                hashes.add(doc_id)
+
             doc = build_doc(raw_doc, fields)
-            doc = {raw_doc['id']: doc}
+            doc = {doc_id: doc}
             yaml.dump(
                 doc,
                 sys.stdout,
@@ -55,9 +66,15 @@ def main():
     elif args.format == 'tsv':
         tsv_writer = csv.writer(sys.stdout, dialect='tsv')
         for raw_doc, _ in data_iterator.read_docs(args.files):
+            doc_id = raw_doc['id']
+            if doc_id in hashes and args.skip_duplicates:
+                continue
+            else:
+                hashes.add(doc_id)
+
             doc = build_doc(raw_doc, fields)
             jsn = json.dumps(doc, ensure_ascii=False)
-            tsv_writer.writerow([raw_doc['id'], jsn])
+            tsv_writer.writerow([doc_id, jsn])
 
 
 def build_doc(raw_doc, fields_to_extract):
