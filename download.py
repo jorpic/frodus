@@ -7,8 +7,8 @@ import logging
 import requests
 from datetime import datetime, timedelta
 
-from api import API
-import query
+from lib.api import API
+import lib.query as query
 
 year = sys.argv[1]
 

@@ -7,8 +7,8 @@ import yaml
 import tarfile
 import logging
 
-import data_iterator
-from fields import known_fields, name_value
+import lib.data_iterator as data_iterator
+from lib.fields import known_fields, name_value
 
 
 logging.basicConfig(
@@ -27,7 +27,7 @@ def main():
     count = 0
     count_texts = 0
 
-    for raw_doc in data_iterator.read_docs(files):
+    for raw_doc, _ in data_iterator.read_docs(files):
         doc = build_doc(raw_doc)
         count += 1
         if 'case_user_document_text_tag' in doc:

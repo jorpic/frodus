@@ -9,8 +9,8 @@ import tarfile
 import logging
 import argparse
 
-import data_iterator
-from fields import known_fields, name_value
+import lib.data_iterator as data_iterator
+from lib.fields import known_fields, name_value
 
 
 logging.basicConfig(
@@ -43,7 +43,7 @@ def main():
         fields = set(filter(lambda f: f in only_fields, fields))
 
     if args.format == 'yaml':
-        for raw_doc in data_iterator.read_docs(args.files):
+        for raw_doc, _  in data_iterator.read_docs(args.files):
             doc = build_doc(raw_doc, fields)
             doc = {raw_doc['id']: doc}
             yaml.dump(
@@ -54,7 +54,7 @@ def main():
 
     elif args.format == 'tsv':
         tsv_writer = csv.writer(sys.stdout, dialect='tsv')
-        for raw_doc in data_iterator.read_docs(args.files):
+        for raw_doc, _ in data_iterator.read_docs(args.files):
             doc = build_doc(raw_doc, fields)
             jsn = json.dumps(doc, ensure_ascii=False)
             tsv_writer.writerow([raw_doc['id'], jsn])

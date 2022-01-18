@@ -36,6 +36,8 @@ known_fields = yaml.safe_load(textwrap.dedent('''
 
     case_common_document_article:
         desc: Статья УК РФ
+        skip: true
+        comment: Иногда отсутствует. В case_document_articles более полная информация.
 
     case_common_document_num:
         value: longValue
@@ -52,19 +54,30 @@ known_fields = yaml.safe_load(textwrap.dedent('''
         value: dateValue
         duplicate: case_common_doc_entry_date
 
-    case_common_event_date:
-        value: dateValue
-        isArray: true
-    case_common_event_m2_search:
-        isArray: true
     case_common_event_m2:
         desc: Движение дела
         isArray: true
+
+    case_common_event_m2_search:
+        isArray: true
+        skip: true
+        comment: Вся информация есть в case_common_event_m2
+
+    case_common_event_date:
+        value: dateValue
+        isArray: true
+        skip: true
+        comment: Вся информация есть в case_common_event_m2
+
     case_common_event_name:
         isArray: true
+        skip: true
+        comment: Вся информация есть в case_common_event_m2
+
     case_common_event_result:
         isArray: true
-        # isDictionary: true
+        skip: true
+        comment: Вся информация есть в case_common_event_m2
 
     case_common_judge:
         desc: Судья
@@ -72,11 +85,15 @@ known_fields = yaml.safe_load(textwrap.dedent('''
 
     case_common_parts_m2_search:
         isArray: true
+        comment: Заменяет собой поля case_common_parts_type и case_common_parts_name
+
     case_common_parts_name:
         isArray: true
+        skip: true
+
     case_common_parts_type:
         isArray: true
-        isDictionary: true
+        skip: true
 
     case_common_type:
         isDictionary: true
@@ -100,6 +117,7 @@ known_fields = yaml.safe_load(textwrap.dedent('''
     case_doc_kind:
         desc: Вид судопроизводства
         isDictionary: true
+        const: Уголовное дело
 
     case_doc_kind_prefix:
         skip: true
@@ -115,7 +133,7 @@ known_fields = yaml.safe_load(textwrap.dedent('''
 
     case_doc_source:
         desc: Источник
-        isDictionary: true
+        const: Обезличенная БД СОЮ
 
     case_doc_source_table:
         desc: Источник (префикс таблиц)
@@ -140,6 +158,8 @@ known_fields = yaml.safe_load(textwrap.dedent('''
     case_document_category_article:
         desc: Статья или категория
         isArray: true
+        skip: true
+        comment: Дублирует case_document_articles немного в другом формате
 
     case_document_id: {}
 
@@ -165,6 +185,7 @@ known_fields = yaml.safe_load(textwrap.dedent('''
     case_document_results:
         desc: Результат
         isDictionary: true
+        duplicate: case_document_result
 
     case_document_types:
         duplicate: case_common_document_type
@@ -209,6 +230,7 @@ known_fields = yaml.safe_load(textwrap.dedent('''
 
     case_user_document_num:
         value: longValue
+        comment: Количество документов в деле?
 
     case_user_document_text_tag: {}
 
@@ -257,6 +279,8 @@ known_fields = yaml.safe_load(textwrap.dedent('''
 
     u_case_common_article:
         desc: Статья УК РФ
+        skip: true
+        comment: Дублирует 
 
     u_case_user_article:
         duplicate: u_case_common_article
@@ -272,7 +296,8 @@ known_fields = yaml.safe_load(textwrap.dedent('''
     u_common_case_defendant_name:
         desc: ФИО защитника
         isArray: true
-        # isDictionary: true
+        skip: true
+        comment: В u_common_case_defendant_m более полная информация
 '''))
 
 

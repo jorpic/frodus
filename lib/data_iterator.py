@@ -28,4 +28,4 @@ def read_docs(files):
                         logging.error(f'in {json_file}: {e}')
                     else:
                         for doc in res['documents']:
-                            yield doc
+                            yield (doc, json_file.name)
