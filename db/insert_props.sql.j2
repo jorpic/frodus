@@ -1,11 +1,7 @@
-
 {%- from 'macros.sql.j2' import create_dictionary, fill_dictionary %}
 {%- from 'macros.sql.j2' import create_array, fill_array %}
 
 {%- set raw_table = config.raw_table %}
-
-delete from {{ raw_table }} raw
-  where exists (select 1 from document_props where raw.id = hash);
 
 
 {%- for d in dictionaries  %}
@@ -23,6 +19,9 @@ create table if not exists document_props(
   hash text unique not null
 );
 
+delete from {{ raw_table }} raw
+  where exists (select 1 from document_props where raw.id = hash);
+
 insert into document_props
   select
     nextval('document_props_id_seq'::regclass),
@@ -37,7 +36,6 @@ insert into document_props
       on ({{ d.name }}.value = trim(raw.data->>'{{ d.field }}'))
 {%- endfor %}
   where true;
-
 
 
 {%- for a in arrays  %}

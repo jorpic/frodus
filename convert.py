@@ -52,16 +52,18 @@ def main():
             doc_id = raw_doc['id']
             if doc_id in hashes and args.skip_duplicates:
                 continue
-            else:
-                hashes.add(doc_id)
 
             doc = build_doc(raw_doc, fields)
-            doc = {doc_id: doc}
+            if doc == {}:
+                continue
+
             yaml.dump(
-                doc,
+                {doc_id: doc},
                 sys.stdout,
                 allow_unicode=True,
                 Dumper=yaml.CDumper)
+
+            hashes.add(doc_id)
 
     elif args.format == 'tsv':
         tsv_writer = csv.writer(sys.stdout, dialect='tsv')
@@ -69,12 +71,14 @@ def main():
             doc_id = raw_doc['id']
             if doc_id in hashes and args.skip_duplicates:
                 continue
-            else:
-                hashes.add(doc_id)
 
             doc = build_doc(raw_doc, fields)
+            if doc == {}:
+                continue
+
             jsn = json.dumps(doc, ensure_ascii=False)
             tsv_writer.writerow([doc_id, jsn])
+            hashes.add(doc_id)
 
 
 def build_doc(raw_doc, fields_to_extract):

@@ -1,0 +1,15 @@
+create table if not exists document_text(
+  doc_id int4 references document_props(id),
+  value text not null
+);
+
+delete from {{ config.raw_table }} raw
+  where exists (select 1 from document_text where raw.id = hash);
+
+insert into document_text
+  select
+    ps.id,
+    to_json(raw.data) #>> '{}'
+  from {{ config.raw_table }} raw, document_props ps
+  where raw.id = ps.hash
+;
