@@ -19,7 +19,7 @@ logging.basicConfig(
     stream=sys.stderr)
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--format', type=str, choices=['yaml', 'psql-tsv'],
+parser.add_argument('--format', type=str, choices=['yaml', 'tsv'],
                     default='yaml',
                     help='Output format. Default is "yaml".')
 group = parser.add_mutually_exclusive_group()
@@ -27,6 +27,8 @@ group.add_argument('--except', type=str, dest='except_',
                     help='Comma-separated list of fields to exclude.')
 group.add_argument('--only', type=str,
                     help='Comma-separated list of fields to include.')
+parser.add_argument('files', type=str, nargs='+',
+                    help='Input data files.')
 
 
 def main():
@@ -40,10 +42,8 @@ def main():
         only_fields = args.only.split(',')
         fields = set(filter(lambda f: f in only_fields, fields))
 
-    files = sys.stdin.readlines()
-
     if args.format == 'yaml':
-        for raw_doc in data_iterator.read_docs(files):
+        for raw_doc in data_iterator.read_docs(args.files):
             doc = build_doc(raw_doc, fields)
             doc = {raw_doc['id']: doc}
             yaml.dump(
@@ -52,9 +52,9 @@ def main():
                 allow_unicode=True,
                 Dumper=yaml.CDumper)
 
-    elif args.format == 'psql-tsv':
+    elif args.format == 'tsv':
         tsv_writer = csv.writer(sys.stdout, dialect='tsv')
-        for raw_doc in data_iterator.read_docs(files):
+        for raw_doc in data_iterator.read_docs(args.files):
             doc = build_doc(raw_doc, fields)
             jsn = json.dumps(doc, ensure_ascii=False)
             tsv_writer.writerow([raw_doc['id'], jsn])
