@@ -4,7 +4,12 @@ create table if not exists document_text(
 );
 
 delete from {{ config.raw_table }} raw
-  where exists (select 1 from document_text where raw.id = hash);
+  where exists (
+    select 1
+      from document_props ps, document_text tx
+      where raw.id = ps.hash
+        and ps.id = tx.doc_id
+  );
 
 insert into document_text
   select
