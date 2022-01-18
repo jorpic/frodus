@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import sys
-import bz2
 import json
 import tarfile
 import logging
@@ -18,7 +17,7 @@ def read_docs(files):
         archive = archive.strip()
         logging.info(f'reading {archive}')
 
-        with tarfile.open(archive, 'r|bz2') as tar:
+        with tarfile.open(archive, 'r:xz') as tar:
             for json_file in tar:
                 with tar.extractfile(json_file) as json_text:
                     try:
