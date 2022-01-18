@@ -1,7 +1,43 @@
 
 {% from 'macros.sql.j2' import create_dictionary, fill_dictionary %}
+{% from 'macros.sql.j2' import create_array, fill_array %}
 
-{% for dict in dictionaries  %}
-  {{ create_dictionary(dict.name) }}
-  {{ fill_dictionary(dict.name, raw_table, dict.field) }}
+{% for d in dictionaries  %}
+  {{ create_dictionary(d.name) }}
+  {{ fill_dictionary(d.name, raw_table, d.field) }}
+{% endfor %}
+
+
+create table if not exists document_props(
+  id serial primary key,
+{% for d in dictionaries  %}
+  {{ d.field }} int4 references {{ d.name }},
+{% endfor %}
+  -- add non-dictionaries
+  hash text not null
+);
+
+insert into document_props
+  select
+    nextval('document_props_id_seq'::regclass),
+{% for d in dictionaries  %}
+    {{ d.name }}.id,
+{% endfor %}
+    raw.id
+  from
+    {{ raw_table }} raw
+{% for d in dictionaries  %}
+    left outer join {{ d.name }}
+      on ({{ d.name }}.value = trim(raw.data->>'{{ d.field }}'))
+{% endfor %}
+  where true;
+
+
+create index if not exists document_props_hash_idx
+  on document_props(hash);
+
+
+{% for a in arrays  %}
+  {{ create_array(a.name) }}
+  {{ fill_array(a.name, raw_table, a.field) }}
 {% endfor %}

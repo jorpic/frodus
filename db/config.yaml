@@ -1,19 +1,15 @@
 
-raw_table: docs
+raw_table: raw_data
 
 dictionaries:
   - name: court
     field: case_common_doc_court
   - name: doc_result
     field: case_common_doc_result
-  - name: document_article
-    field: case_common_document_article
   - name: document_type
     field: case_common_document_type
   - name: judge
     field: case_common_judge
-  - name: parts_type
-    field: case_common_parts_type
   - name: common_type
     field: case_common_type
   - name: court_type
@@ -22,11 +18,17 @@ dictionaries:
     field: case_doc_district_rf
   - name: instance
     field: case_doc_instance
-  - name: kind
-    field: case_doc_kind
   - name: subject_rf_code
     field: case_doc_subject_rf_code
   - name: result
     field: case_document_result
   - name: user_type
     field: case_user_type
+
+arrays:
+  - name: case_common_event_m2
+    field: case_common_event_m2
+  - name: u_common_case_defendant_m
+    field: u_common_case_defendant_m
+  - name: case_common_parts_m2_search
+    field: case_common_parts_m2_search

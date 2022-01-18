@@ -2,13 +2,13 @@
 {% macro create_dictionary(name) %}
 create table if not exists {{ name }}(
   id serial primary key,
-  name text unique not null
+  value text unique not null
 );
 {% endmacro %}
 
 
 {% macro fill_dictionary(dict, raw_table, field) %}
-insert into {{ dict }} (name)
+insert into {{ dict }} (value)
   select distinct trim(r.data->>'{{ field }}')
   from {{ raw_table }} r
   where
@@ -16,6 +16,27 @@ insert into {{ dict }} (name)
     and not exists (
       select 1
         from {{ dict }} d
-        where trim(r.data->>'{{ field }}') = d.name
+        where trim(r.data->>'{{ field }}') = d.value
     );
+{% endmacro %}
+
+
+{% macro create_array(name) %}
+create table if not exists {{ name }}(
+  doc_id int4 references document_props(id),
+  data text not null
+);
+{% endmacro %}
+
+{% macro fill_array(name, raw_table, field) %}
+insert into {{ name }}
+  select
+    ps.id,
+    json_array_elements_text(raw.data->'{{ field }}')
+  from {{ raw_table }} raw, document_props ps
+  where raw.id = ps.hash
+;
+
+create index if not exists {{ name }}_id_idx
+  on {{ name }}(doc_id);
 {% endmacro %}
