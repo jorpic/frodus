@@ -3,6 +3,8 @@
 
 {%- set raw_table = config.raw_table %}
 
+\timing on
+
 
 {%- for d in dictionaries  %}
   {{ create_dictionary(d.name) }}
