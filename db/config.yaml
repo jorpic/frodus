@@ -20,8 +20,6 @@ dictionaries:
     field: case_doc_subject_rf_code
   - name: result
     field: case_document_result
-  - name: user_type
-    field: case_user_type
 
 arrays:
   - name: case_common_event_m2

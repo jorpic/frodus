@@ -248,7 +248,8 @@ known_fields = yaml.safe_load(textwrap.dedent('''
     case_user_judge:
         duplicate: case_common_judge
 
-    case_user_type: {}
+    case_user_type:
+        duplicate: case_common_type
 
     case_year_entry:
         desc: Год поступления дела
