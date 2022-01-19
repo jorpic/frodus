@@ -52,11 +52,13 @@ create table if not exists document_props(
   dummy text
 );
 
+
 delete from {{ raw_table }} raw
   where exists (
     select 1
       from document_props ps
       where decode(raw.id, 'hex') = ps.id);
+
 
 insert into document_props
   select
@@ -78,3 +80,18 @@ insert into document_props
   {{ create_array(a.name) }}
   {{ fill_array(a.name, raw_table, a.field) }}
 {%- endfor %}
+
+
+
+create table if not exists document_text(
+  doc_id bytea unique not null references document_props(id),
+  value text not null
+);
+
+insert into document_text
+  select
+    decode(raw.id, 'hex'),
+    to_json(raw.txt) #>> '{}'
+  from {{ raw_table }} raw
+  where
+    to_json(raw.txt) #>> '{}' is not null

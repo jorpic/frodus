@@ -16,41 +16,35 @@ logging.basicConfig(
     stream=sys.stderr)
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--props', type=str, required=True,
-                    help='File to save props in TSV format.')
-parser.add_argument('--texts', type=str, required=True,
-                    help='File to save texts in TSV format.')
 parser.add_argument('files', type=str, nargs='+',
                     help='Input data files.')
-
-TEXT_FIELD = 'case_user_document_text_tag'
-
 
 def main():
     args = parser.parse_args()
 
     hashes = set()
 
-    with open(args.props, 'w') as props_file:
-        with open(args.texts, 'w') as texts_file:
-            props_writer = csv.writer(props_file, dialect='tsv')
-            texts_writer = csv.writer(texts_file, dialect='tsv')
+    tsv_writer = csv.writer(sys.stdout, dialect='tsv')
+    TEXT_FIELD = 'case_user_document_text_tag'
 
-            for raw_doc, _ in data_iterator.read_docs(args.files):
-                doc_id = raw_doc['id']
-                if doc_id in hashes:
-                    continue
+    for raw_doc, _ in data_iterator.read_docs(args.files):
+        doc_id = raw_doc['id']
+        if doc_id in hashes:
+            continue
 
-                hashes.add(doc_id)
-                doc = build_doc(raw_doc)
+        hashes.add(doc_id)
+        doc = build_doc(raw_doc)
 
-                if TEXT_FIELD in doc:
-                    jsn = json.dumps(doc[TEXT_FIELD], ensure_ascii=False)
-                    texts_writer.writerow([doc_id, jsn])
-                    del doc[TEXT_FIELD]
+        txt = None
+        if TEXT_FIELD in doc:
+            txt = doc[TEXT_FIELD]
+            del doc[TEXT_FIELD]
 
-                jsn = json.dumps(doc, ensure_ascii=False)
-                props_writer.writerow([doc_id, jsn])
+        tsv_writer.writerow([
+            doc_id,
+            json.dumps(doc, ensure_ascii=False),
+            json.dumps(txt, ensure_ascii=False)
+        ])
 
 
 def build_doc(raw_doc):
