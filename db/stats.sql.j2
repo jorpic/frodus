@@ -1,0 +1,31 @@
+
+{% for d in dictionaries %}
+with
+  total(count) as (
+    select count(*) from {{ d.name }}
+  ),
+  hg(id, count) as (
+    select
+      {{ d.field }},
+      count(*)
+    from document_props
+    group by 1
+  ),
+  hg_params as (
+    select
+      min(count), max(count)
+    from hg
+  ),
+  hg_nice as (
+    select
+      d.id,
+      d.value,
+      hg.count,
+      repeat('■', (hg.count::float / hg_params.max * 30)::int)
+    from hg, hg_params, {{ d.name }} d
+    where hg.id = d.id
+  )
+  select null, '{{ d.name }}', total.count, null from total
+  union all
+  (select hg_nice.* from hg_nice, total order by count desc limit 20);
+{% endfor %}
