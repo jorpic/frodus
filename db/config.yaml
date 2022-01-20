@@ -1,3 +1,21 @@
+timestamps:
+  - timestamp
+  - case_common_doc_entry_date
+  - case_common_doc_result_date
+  - case_common_doc_validity_date
+  - case_doc_load_date
+  - case_document_load_date
+  - case_document_publ_date
+  - case_document_result_date
+  - case_user_doc_validity_date
+
+smallints:
+  - case_year_entry
+  - case_year
+  - case_year_result
+  - case_regbasenum
+  - case_user_document_num
+
 dictionaries:
   - case_common_doc_court
   - case_common_doc_result
@@ -9,6 +27,13 @@ dictionaries:
   - case_doc_instance
   - case_doc_subject_rf_code
   - case_document_result
+
+strings:
+  - case_document_id
+  - case_id
+  - case_id_region
+  - case_common_doc_number
+  - case_document_articles
 
 arrays:
   - case_common_event_m2

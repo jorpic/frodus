@@ -46,12 +46,19 @@ with
 
 
 create table if not exists document_props(
-  id bytea primary key,
-{%- for d in dictionaries  %}
-  {{ d }} int4 references {{ d }}(id),
+  id bytea primary key
+{%- for t in timestamps  %}
+  ,{{ t }} timestamp
 {%- endfor %}
-  -- add non-dictionaries
-  dummy text -- FIXME
+{%- for s in smallints  %}
+  ,{{ s }} smallint
+{%- endfor %}
+{%- for d in dictionaries  %}
+  ,{{ d }} int4 references {{ d }}(id)
+{%- endfor %}
+{%- for s in strings  %}
+  ,{{ s }} text
+{%- endfor %}
 );
 
 
@@ -64,11 +71,19 @@ delete from {{ raw_table }} raw
 
 insert into document_props
   select
-    decode(raw.id, 'hex'),
-{%- for d in dictionaries  %}
-    {{ d }}.id,
+    decode(raw.id, 'hex')
+{%- for t in timestamps  %}
+    ,(raw.data->>'{{ t }}')::timestamp
 {%- endfor %}
-    null -- FIXME: dummy
+{%- for s in smallints  %}
+    ,(raw.data->>'{{ s }}')::smallint
+{%- endfor %}
+{%- for d in dictionaries  %}
+    ,{{ d }}.id
+{%- endfor %}
+{%- for s in strings  %}
+    ,trim(raw.data->>'{{ s }}')
+{%- endfor %}
   from
     {{ raw_table }} raw
 {%- for d in dictionaries  %}

@@ -192,6 +192,8 @@ known_fields = yaml.safe_load(textwrap.dedent('''
 
     case_doc_vnkod:
         desc: Код суда
+        skip: true
+        comment: Однозначно соответствует названию суда из case_common_doc_court
 
     case_id:
         desc: Идентификатор дела
@@ -205,6 +207,8 @@ known_fields = yaml.safe_load(textwrap.dedent('''
 
     case_short_number:
         desc: Порядковый номер дела
+        skip: true
+        comment: это кусочек из case_common_doc_number
 
     case_user_doc_court:
         desc: Наименование суда
@@ -217,9 +221,10 @@ known_fields = yaml.safe_load(textwrap.dedent('''
 
     case_user_doc_number:
         desc: Номер дела (материала)
+        duplicate: case_common_doc_number
 
     case_user_doc_number_rewrite:
-        duplicate: case_user_doc_number
+        duplicate: case_common_doc_number
 
     case_user_doc_result:
         duplicate: case_common_doc_result
@@ -269,6 +274,8 @@ known_fields = yaml.safe_load(textwrap.dedent('''
 
     name:
         desc: Название
+        skip: true
+        comment: Это case_common_doc_number с префиксом "Уголовное дело"
 
     timestamp:
         value: dateValue
