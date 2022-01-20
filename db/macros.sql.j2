@@ -15,12 +15,12 @@ create table if not exists {{ name }}(
 {% endmacro %}
 
 
-{% macro fill_array(name, raw_table, field) %}
+{% macro fill_array(name, raw_table) %}
 with
   array_values(id, val) as (
     select
       decode(id, 'hex'),
-      json_array_elements_text(raw.data->'{{ field }}')
+      json_array_elements_text(raw.data->'{{ name }}')
     from {{ raw_table }} raw
   ),
   array_inserted as (

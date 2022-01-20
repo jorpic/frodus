@@ -1,30 +1,16 @@
-
 dictionaries:
-  - name: court
-    field: case_common_doc_court
-  - name: doc_result
-    field: case_common_doc_result
-  - name: document_type
-    field: case_common_document_type
-  - name: judge
-    field: case_common_judge
-  - name: common_type
-    field: case_common_type
-  - name: court_type
-    field: case_court_type
-  - name: district_rf
-    field: case_doc_district_rf
-  - name: instance
-    field: case_doc_instance
-  - name: subject_rf_code
-    field: case_doc_subject_rf_code
-  - name: result
-    field: case_document_result
+  - case_common_doc_court
+  - case_common_doc_result
+  - case_common_document_type
+  - case_common_judge
+  - case_common_type
+  - case_court_type
+  - case_doc_district_rf
+  - case_doc_instance
+  - case_doc_subject_rf_code
+  - case_document_result
 
 arrays:
-  - name: case_common_event_m2
-    field: case_common_event_m2
-  - name: u_common_case_defendant_m
-    field: u_common_case_defendant_m
-  - name: case_common_parts_m2_search
-    field: case_common_parts_m2_search
+  - case_common_event_m2
+  - u_common_case_defendant_m
+  - case_common_parts_m2_search

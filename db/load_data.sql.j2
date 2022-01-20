@@ -7,7 +7,7 @@
 
 
 {%- for d in dictionaries  %}
-  {{ create_dictionary(d.name) }}
+  {{ create_dictionary(d) }}
 {%- endfor %}
 
 with
@@ -15,23 +15,23 @@ with
     select
 {%- for d in dictionaries  %}
       jsonb_object_agg(
-        coalesce(trim(data->>'{{ d.field }}'), ''),
+        coalesce(trim(data->>'{{ d }}'), ''),
         null
-      ) as {{ d.name }},
+      ) as {{ d }},
 {%- endfor %}
       1
       from {{ raw_table }}
   ),
 {%- for d in dictionaries  %}
-  {{ d.name }}_insert as (
-    insert into {{ d.name }} (value)
+  {{ d }}_insert as (
+    insert into {{ d }} (value)
       select new.value
       from
         aggregated_values vs,
-        jsonb_object_keys(vs.{{ d.name }}) new(value)
+        jsonb_object_keys(vs.{{ d }}) new(value)
       where new.value != ''
         and not exists
-          (select 1 from {{ d.name }} dict where new.value = dict.value)
+          (select 1 from {{ d }} dict where new.value = dict.value)
     returning 1
   ),
 {%- endfor %}
@@ -39,7 +39,7 @@ with
     select null as dictionary, null as inserted
 {%- for d in dictionaries  %}
     union all
-    select '{{ d.name }}', count(*) from {{ d.name }}_insert
+    select '{{ d }}', count(*) from {{ d }}_insert
 {%- endfor %}
   )
   select * from result;
@@ -48,10 +48,10 @@ with
 create table if not exists document_props(
   id bytea primary key,
 {%- for d in dictionaries  %}
-  {{ d.field }} int4 references {{ d.name }},
+  {{ d }} int4 references {{ d }}(id),
 {%- endfor %}
   -- add non-dictionaries
-  dummy text
+  dummy text -- FIXME
 );
 
 
@@ -66,21 +66,21 @@ insert into document_props
   select
     decode(raw.id, 'hex'),
 {%- for d in dictionaries  %}
-    {{ d.name }}.id,
+    {{ d }}.id,
 {%- endfor %}
-    null
+    null -- FIXME: dummy
   from
     {{ raw_table }} raw
 {%- for d in dictionaries  %}
-    left outer join {{ d.name }}
-      on ({{ d.name }}.value = trim(raw.data->>'{{ d.field }}'))
+    left outer join {{ d }}
+      on ({{ d }}.value = trim(raw.data->>'{{ d }}'))
 {%- endfor %}
   on conflict do nothing;
 
 
 {%- for a in arrays  %}
-  {{ create_array(a.name) }}
-  {{ fill_array(a.name, raw_table, a.field) }}
+  {{ create_array(a) }}
+  {{ fill_array(a, raw_table) }}
 {%- endfor %}
 
 
