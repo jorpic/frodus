@@ -9,7 +9,7 @@ create table if not exists {{ name }}(
 
 {% macro create_array(name) %}
 create table if not exists {{ name }}(
-  doc_id bytea not null references document_props(id),
+  doc_id bytea not null references case_props(id),
   value text not null
 );
 {% endmacro %}

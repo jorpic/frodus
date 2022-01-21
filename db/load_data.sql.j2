@@ -45,7 +45,7 @@ with
   select * from result;
 
 
-create table if not exists document_props(
+create table if not exists case_props(
   id bytea primary key
 {%- for t in timestamps  %}
   ,{{ t }} timestamp
@@ -65,11 +65,11 @@ create table if not exists document_props(
 delete from {{ raw_table }} raw
   where exists (
     select 1
-      from document_props ps
+      from case_props ps
       where decode(raw.id, 'hex') = ps.id);
 
 
-insert into document_props
+insert into case_props
   select
     decode(raw.id, 'hex')
 {%- for t in timestamps  %}
@@ -100,12 +100,12 @@ insert into document_props
 
 
 
-create table if not exists document_text(
-  doc_id bytea unique not null references document_props(id),
+create table if not exists case_text(
+  doc_id bytea unique not null references case_props(id),
   value text not null
 );
 
-insert into document_text
+insert into case_text
   select
     decode(raw.id, 'hex'),
     to_json(raw.txt) #>> '{}'

@@ -5,7 +5,7 @@ with
     select count(*) from {{ d.name }}
   ),
   hg(id, count) as (
-    select {{ d.field }}, count(*) from document_props group by 1
+    select {{ d.field }}, count(*) from case_props group by 1
   ),
   hg_params as (
     select min(count), max(count), sum(count) from hg
