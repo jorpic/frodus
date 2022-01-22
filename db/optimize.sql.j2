@@ -1,0 +1,5 @@
+-- group by doc_id requires sorting
+{% for a in arrays %}
+  cluster verbose {{ a }} using {{ a }}_doc_id_idx;
+  analyze verbose {{ a }};
+{% endfor %}
