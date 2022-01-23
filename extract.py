@@ -40,6 +40,9 @@ def main():
             txt = doc[TEXT_FIELD]
             del doc[TEXT_FIELD]
 
+        if txt and txt.strip() == '':
+            txt = None
+
         tsv_writer.writerow([
             doc_id,
             json.dumps(doc, ensure_ascii=False),
