@@ -1,4 +1,44 @@
 
+
+-- TODO: case_document_result_date
+
+
+
+create table case_text_length(doc_id bytea primary key, len int4 not null);
+insert into case_text_length select doc_id, length(value) from case_text;
+
+
+with
+  stat as (
+    select
+      log(2, min(len)) as min,
+      log(2, max(len)) as max,
+      max(len) as xmax
+    from case_text_length
+  ),
+  hg as (
+    select
+      width_bucket(log(2, tx.len), stat.min, stat.max, 30),
+      int4range(
+        min(tx.len),
+        max(tx.len), '[]') as range,
+      count(*)
+    from stat, case_text_length tx
+    group by 1
+    order by 1
+  )
+  select
+    hg.range,
+    hg.count,
+    repeat(
+      '■',
+      (hg.count::float / max(hg.count) over () * 30)::int
+    )
+  from hg, stat;
+
+
+
+
 {% for d in dictionaries %}
 with
   total(count) as (
