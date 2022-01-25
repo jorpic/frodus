@@ -42,10 +42,10 @@ with
 {% for d in dictionaries %}
 with
   total(count) as (
-    select count(*) from {{ d.name }}
+    select count(*) from {{ d }}
   ),
   hg(id, count) as (
-    select {{ d.field }}, count(*) from case_props group by 1
+    select {{ d }}, count(*) from case_props group by 1
   ),
   hg_params as (
     select min(count), max(count), sum(count) from hg
@@ -56,10 +56,11 @@ with
       hg.count,
       round(hg.count / hg_params.sum * 100, 2) || '%',
       repeat('■', (hg.count::float / hg_params.max * 30)::int)
-    from hg, hg_params, {{ d.name }} d
-    where hg.id = d.id
+    from
+      hg_params,
+      hg left outer join {{ d }} d on (hg.id = d.id)
   )
-  select 'Название словаря: {{ d.name }}', null::bigint, null, null
+  select 'Название словаря: {{ d }}', null::bigint, null, null
   union all
   select 'Количество значений: ' || total.count, null, null, null from total
   union all
