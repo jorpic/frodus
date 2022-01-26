@@ -27,6 +27,7 @@ with
   {%- for a in arrays %}
     ,agg_{{ a }}.value as {{ a }}
   {%- endfor %}
+    ,left(txt.value, 200) as text
   from
     case_props ps
 {%- for d in dictionaries  %}
@@ -37,4 +38,6 @@ with
     left outer join agg_{{ a }}
       on (agg_{{ a }}.doc_id = ps.id)
   {%- endfor %}
+    left outer join case_text txt
+      on (txt.doc_id = ps.id)
 ;
