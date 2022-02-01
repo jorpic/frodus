@@ -50,7 +50,8 @@ delay = 9
 while True:
     date = query_date.date().isoformat()
     while True:
-        response = api.search(query.search(query_date, offset))
+        # response = api.search(query.search(query_date, offset))
+        response = api.search(query.search1('Республика Башкортостан', query_date, offset))
 
         file_name = f'{DATA_DIR}/{date}.{offset}.response'
 

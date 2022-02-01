@@ -1,4 +1,3 @@
-import uuid
 import yaml
 import json
 import textwrap
@@ -23,9 +22,6 @@ def case_user_doc_result_date(date):
         '''
     ))
     return json.dumps(query, ensure_ascii=False)
-
-
-query_id = uuid.uuid4()
 
 def search(day, offset=0):
     date_query = case_user_doc_result_date(day)
@@ -131,6 +127,116 @@ def search(day, offset=0):
               - u_common_case_defendant_m
               - u_common_case_defendant_m_search
               - u_common_case_defendant_name
+        '''))
+    return query
+
+def search1(arg, date, offset=0):
+
+    q = yaml.safe_load(textwrap.dedent(f'''
+        mode: EXTENDED
+        typeRequests:
+          - fieldRequests:
+              - name: case_user_doc_result_date
+                operator: B
+                query: '2019-01-01T00:00:00'
+                sQuery: '2020-01-01T00:00:00'
+                fieldName: case_user_doc_result_date
+              - name: case_doc_subject_rf
+                operator: EX
+                query: {arg}
+                fieldName: case_doc_subject_rf_cat
+            mode: AND
+            name: common
+            typesMode: AND
+        '''))
+
+
+    query = yaml.safe_load(textwrap.dedent(f'''
+        doNotSaveHistory: true
+        request:
+          start: {offset}
+          rows: {LIMIT}
+          type: MULTIQUERY
+          multiqueryRequest:
+            queryRequests:
+              - type: Q
+                request: |
+                    {json.dumps(q, ensure_ascii=False)}
+                operator: AND
+                queryRequestRole: CATEGORIES
+          sorts:
+            - field: case_common_doc_result_date
+              order: desc
+          simpleSearchFieldsBundle: default
+          customFilters:
+            - name: case_document_category_article_cat
+              operator: SEW
+              query: 6.1.1
+              type: FACET_FREE_FILTER
+              fieldName: case_document_category_article_cat
+              not: false
+          facet:
+            field:
+              - type
+              - case_document_category_article_cat
+          facetLimit: 21
+          hlFragSize: 1000
+          groupLimit: 3
+          woBoost: false
+
+          additionalFields:
+            - adm_case_common_article
+            - case_common_doc_court
+            - case_common_doc_number
+            - case_common_doc_number_rewrite
+            - case_common_doc_result_date
+            - case_common_document_num
+            - case_common_judge
+            - case_common_parts_law_article
+            - case_court_type
+            - case_court_type_cat
+            - case_doc_district_rf
+            - case_doc_instance
+            - case_doc_kind
+            - case_doc_kind_short
+            - case_doc_source
+            - case_doc_source_table
+            - case_doc_subject_rf
+            - case_doc_subject_rf_code
+            - case_document_articles
+            - case_document_category_article
+            - case_document_result_date
+            - case_doc_vnkod
+            - case_user_doc_court
+            - case_user_doc_number
+            - case_user_doc_number_rewrite
+            - case_user_doc_result_date
+            - case_user_document_num
+            - case_user_document_text_tag
+            - case_user_judge
+            - case_year
+            - check_type
+            - court_adress
+            - court_area
+            - court_area2
+            - court_case_entry_date
+            - court_case_result
+            - court_case_result_date
+            - court_city
+            - court_city2
+            - court_deside
+            - court_document_documentype1
+            - court_document_law_article
+            - court_name_court
+            - court_oktmo
+            - court_subject_rf
+            - document_links_inet
+            - m_case_user_sub_type
+            - m_case_user_type
+            - name
+            - ora_main_law_article
+            - timestamp
+            - txt_exist
         '''))
     return query
 
