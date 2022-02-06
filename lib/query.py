@@ -6,15 +6,15 @@ from datetime import datetime, timedelta
 
 LIMIT = 20
 
-def case_user_doc_result_date(date):
+def case_user_doc_result_date(from_date, to_date):
     query = yaml.safe_load(textwrap.dedent(f'''
         mode: EXTENDED
         typeRequests:
             - fieldRequests:
                 - name: case_user_doc_result_date
                   operator: B
-                  query: '{date.isoformat()}'
-                  sQuery: '{(date + timedelta(days=1)).isoformat()}'
+                  query: '{from_date.isoformat()}'
+                  sQuery: '{to_date.isoformat()}'
                   fieldName: case_user_doc_result_date
               mode: AND
               name: common
@@ -23,8 +23,8 @@ def case_user_doc_result_date(date):
     ))
     return json.dumps(query, ensure_ascii=False)
 
-def search(day, offset=0):
-    date_query = case_user_doc_result_date(day)
+def search(from_date, to_date, offset=0):
+    date_query = case_user_doc_result_date(from_date, to_date)
 
     query = yaml.safe_load(textwrap.dedent(f'''
         doNotSaveHistory: true

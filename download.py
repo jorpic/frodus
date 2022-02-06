@@ -47,11 +47,16 @@ if os.path.isfile(f'{year}.savepoint'):
         logging.info(f'Continue from {date=} {offset=}')
 
 delay = 9
-while True:
+while query_date.year == int(year):
     date = query_date.date().isoformat()
+    next_date = query_date + timedelta(weeks=1)
     while True:
-        # response = api.search(query.search(query_date, offset))
-        response = api.search(query.search1('Республика Башкортостан', query_date, offset))
+        response = api.search(
+            query.search(
+                query_date,
+                next_date,
+                offset))
+        # response = api.search(query.search1('Республика Башкортостан', query_date, offset))
 
         file_name = f'{DATA_DIR}/{date}.{offset}.response'
 
@@ -77,9 +82,6 @@ while True:
     os.system(f'tar --remove-files -cJf {DATA_DIR}/{date}.tar.xz {DATA_DIR}/{date}.*.response')
 
     offset = 0
-    prev_date = query_date
-    query_date += timedelta(days=1)
-    if query_date.year > prev_date.year:
-        break
+    query_date = next_date
 
 logging.info('Done!')
