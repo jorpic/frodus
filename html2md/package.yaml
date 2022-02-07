@@ -1,0 +1,27 @@
+name:       html2md
+version:    0.1.0.0
+license:    MIT
+author:     "Max Taldykin"
+copyright:  "2022"
+
+ghc-options:
+  - -Wall
+  - -Werror
+  - -O2
+  - -funbox-strict-fields
+
+default-extensions:
+  - ImportQualifiedPost
+  - OverloadedStrings
+  - LambdaCase
+
+executables:
+  html2md:
+    main: Main.hs
+    source-dirs: .
+    dependencies:
+      - base
+      - bytestring
+      - aeson
+      - pandoc
+      - unordered-containers

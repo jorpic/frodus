@@ -1,0 +1,31 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.33.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 24cff1d97189976a60a453721f7176cedcff420fe6fbcc344d241d90362d6acc
+
+name:           html2md
+version:        0.1.0.0
+author:         Max Taldykin
+maintainer:     Max Taldykin
+copyright:      2022
+license:        MIT
+build-type:     Simple
+
+executable html2md
+  main-is: Main.hs
+  other-modules:
+      Paths_html2md
+  hs-source-dirs:
+      ./.
+  default-extensions: ImportQualifiedPost OverloadedStrings LambdaCase
+  ghc-options: -Wall -Werror -O2 -funbox-strict-fields
+  build-depends:
+      aeson
+    , base
+    , bytestring
+    , pandoc
+    , unordered-containers
+  default-language: Haskell2010
