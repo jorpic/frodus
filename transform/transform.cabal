@@ -24,7 +24,7 @@ executable transform
       LambdaCase
       OverloadedStrings
       TupleSections
-  ghc-options: -Wall -O2 -funbox-strict-fields
+  ghc-options: -Wall -Werror -O2 -funbox-strict-fields
   build-depends:
       aeson
     , base

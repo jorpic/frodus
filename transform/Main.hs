@@ -1,4 +1,4 @@
-import Control.Applicative ((<|>))
+import Control.Applicative
 import Control.Monad.IO.Class
 import Control.Monad.Reader
 import Control.Lens
@@ -110,9 +110,20 @@ transformField :: FieldSpecMap -> Aeson.Value -> Maybe (Text, Aeson.Value)
 transformField specMap v = do
   name <- v ^? key "name" . _String
   spec <- Map.lookup name specMap
-  valFld <- fs_value spec <|> Just "value"
-  value <- v ^? key valFld . _Value
-  return (name, value)
+
+  let skip = any (== Just True) [
+        fs_skip spec,
+        const True <$> fs_const spec,
+        const True <$> fs_duplicate spec]
+
+  case skip of
+    True -> Nothing
+    False -> do
+      valFld <- fs_value spec <|> Just "value"
+      value <- v ^? key valFld . _Value
+      return (name, value)
+
+  -- collect isArray
 
 html2md :: Text -> IO Text
 html2md str = Pandoc.runIOorExplode
