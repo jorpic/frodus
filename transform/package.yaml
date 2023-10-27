@@ -1,0 +1,37 @@
+name:       transform
+version:    0.1.0.0
+license:    MIT
+author:     "Max Taldykin"
+copyright:  "2023"
+
+ghc-options:
+  - -Wall
+    #  - -Werror
+  - -O2
+  - -funbox-strict-fields
+
+default-extensions:
+  - DeriveGeneric
+  - ImportQualifiedPost
+  - LambdaCase
+  - OverloadedStrings
+  - TupleSections
+
+executables:
+  transform:
+    main: Main.hs
+    source-dirs: .
+    dependencies:
+      - aeson
+      - base
+      - bytestring
+      - cassava
+      - lens
+      - lens-aeson
+      - lzma
+      - pandoc
+      - tar
+      - text
+      - mtl
+      - containers
+      - yaml

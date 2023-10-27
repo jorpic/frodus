@@ -275,7 +275,6 @@ timestamp:
 
 txt_exist:
     desc: Наличие текста
-    skip: true
 
 u_case_common_article:
     desc: Статья УК РФ

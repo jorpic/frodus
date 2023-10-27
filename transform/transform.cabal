@@ -1,0 +1,42 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.35.1.
+--
+-- see: https://github.com/sol/hpack
+
+name:           transform
+version:        0.1.0.0
+author:         Max Taldykin
+maintainer:     Max Taldykin
+copyright:      2023
+license:        MIT
+build-type:     Simple
+
+executable transform
+  main-is: Main.hs
+  other-modules:
+      Paths_transform
+  hs-source-dirs:
+      ./
+  default-extensions:
+      DeriveGeneric
+      ImportQualifiedPost
+      LambdaCase
+      OverloadedStrings
+      TupleSections
+  ghc-options: -Wall -O2 -funbox-strict-fields
+  build-depends:
+      aeson
+    , base
+    , bytestring
+    , cassava
+    , containers
+    , lens
+    , lens-aeson
+    , lzma
+    , mtl
+    , pandoc
+    , tar
+    , text
+    , yaml
+  default-language: Haskell2010
