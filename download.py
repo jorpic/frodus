@@ -9,7 +9,12 @@ from datetime import datetime, timedelta
 from lib.api import API
 import lib.query as query
 
-year = sys.argv[1]
+group = sys.argv[1]
+if group != 'ugo' and group != 'adm':
+    print('invalid group name:', group)
+    sys.exit(1)
+
+year = sys.argv[2]
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -46,17 +51,17 @@ if os.path.isfile(f'{year}.savepoint'):
         offset = int(offset)
         logging.info(f'Continue from {date=} {offset=}')
 
-delay = 9
+delay = 9 # seconds
 while query_date.year == int(year):
     date = query_date.date().isoformat()
     next_date = query_date + timedelta(weeks=1)
     while True:
         response = api.search(
             query.search(
+                group,
                 query_date,
                 next_date,
                 offset))
-        # response = api.search(query.search1('Республика Башкортостан', query_date, offset))
 
         file_name = f'{DATA_DIR}/{date}.{offset}.response'
 

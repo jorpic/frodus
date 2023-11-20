@@ -23,16 +23,24 @@ def case_user_doc_result_date(from_date, to_date):
     ))
     return json.dumps(query, ensure_ascii=False)
 
-def search(from_date, to_date, offset=0):
+def search(group, from_date, to_date, offset=0):
     date_query = case_user_doc_result_date(from_date, to_date)
+
+    if group == 'ugo':
+        queryId = '7f9e8ff8-4bc8-46aa-bcbd-f2b3ed5f159f'
+        groups = ['Уголовные дела']
+        additionalFields = additionalFields_ugo
+    elif group == 'adm':
+        groups = ['Дела об АП']
+        queryId = '1f074cdd-f56a-4089-b901-df7a05b3a5c8'
+        additionalFields = additionalFields_adm
 
     query = yaml.safe_load(textwrap.dedent(f'''
         doNotSaveHistory: true
         request:
           start: {offset}
           rows: {LIMIT}
-          groups:
-            - Уголовные дела
+          groups: []
           sorts:
             - field: score
               order: desc
@@ -45,7 +53,7 @@ def search(from_date, to_date, offset=0):
                 operator: AND
                 queryRequestRole: CATEGORIES
               - type: SQ
-                queryId: 7f9e8ff8-4bc8-46aa-bcbd-f2b3ed5f159f
+                queryId: '{queryId}'
                 operator: AND
           simpleSearchFieldsBundle: null
           noOrpho: true
@@ -56,187 +64,133 @@ def search(from_date, to_date, offset=0):
           hlFragSize: 1000
           groupLimit: 3
           woBoost: false
-          additionalFields:
-              - case_common_doc_court
-              - case_common_doc_entry_date
-              - case_common_doc_number
-              - case_common_doc_number_rewrite
-              - case_common_doc_result
-              - case_common_doc_result_date
-              - case_common_document_article
-              - case_common_document_num
-              - case_common_document_type
-              - case_common_doc_validity_date
-              - case_common_entry_date
-              - case_common_event_m2
-              - case_common_judge
-              - case_common_parts_m2_search
-              - case_common_parts_name
-              - case_common_parts_type
-              - case_common_type
-              - case_court_type
-              - case_court_type_cat
-              - case_doc_district_rf
-              - case_doc_instance
-              - case_doc_kind
-              - case_doc_kind_prefix
-              - case_doc_kind_short
-              - case_doc_load_date
-              - case_doc_source
-              - case_doc_source_table
-              - case_doc_subject_number
-              - case_doc_subject_rf
-              - case_doc_subject_rf_code
-              - case_document_articles
-              - case_document_category_article
-              - case_document_id
-              - case_document_load_date
-              - case_document_num_build
-              - case_document_publ_date
-              - case_document_result
-              - case_document_result_date
-              - case_document_results
-              - case_document_types
-              - case_doc_vnkod
-              - case_id
-              - case_id_region
-              - case_regbasenum
-              - case_short_number
-              - case_user_doc_court
-              - case_user_doc_entry_date
-              - case_user_doc_number
-              - case_user_doc_number_rewrite
-              - case_user_doc_result
-              - case_user_doc_result_date
-              - case_user_document_num
-              - case_user_document_text_tag
-              - case_user_document_type
-              - case_user_doc_validity_date
-              - case_user_entry_date
-              - case_user_judge
-              - case_user_type
-              - case_year
-              - case_year_entry
-              - case_year_result
-              - court_deside
-              - name
-              - timestamp
-              - txt_exist
-              - u_case_common_article
-              - u_case_user_article
-              - u_common_case_defendant_m
-              - u_common_case_defendant_m_search
-              - u_common_case_defendant_name
+          additionalFields: []
         '''))
+
+    query['request']['groups'] = groups
+    query['request']['additionalFields'] = additionalFields
     return query
 
-def search1(arg, date, offset=0):
+'''
+request:
+  groups:
+    - Дела об АП
+  type: MULTIQUERY
+  multiqueryRequest:
+    queryRequests:
+      - type: Q
+        request: {request}
+        operator: AND
+        queryRequestRole: CATEGORIES
+      - type: SQ
+        queryId: 1f074cdd-f56a-4089-b901-df7a05b3a5c8
+        operator: AND
+  sorts:
+    - field: score
+      order: desc
+  simpleSearchFieldsBundle: null
+  start: 0
+  rows: 10
+  uid: d6a383f3-b91d-4058-9688-a52be634584c
+  noOrpho: false
+  facet:
+    field:
+      - type
+  facetLimit: 21
+  additionalFields:
+    - case_user_doc_number
+    - case_user_document_type
+    - case_common_parts_law_article
+    - case_user_entry_date
+    - case_user_doc_result_date
+    - case_doc_subject_rf
+    - case_user_doc_court
+    - adm_case_user_name
+    - case_user_doc_result
+  hlFragSize: 1000
+  groupLimit: 3
+  woBoost: false
+doNotSaveHistory: false
+'''
 
-    q = yaml.safe_load(textwrap.dedent(f'''
-        mode: EXTENDED
-        typeRequests:
-          - fieldRequests:
-              - name: case_user_doc_result_date
-                operator: B
-                query: '2019-01-01T00:00:00'
-                sQuery: '2020-01-01T00:00:00'
-                fieldName: case_user_doc_result_date
-              - name: case_doc_subject_rf
-                operator: EX
-                query: {arg}
-                fieldName: case_doc_subject_rf_cat
-            mode: AND
-            name: common
-            typesMode: AND
-        '''))
+
+additionalFields_ugo = [
+    'case_common_doc_court',            'case_common_doc_entry_date',
+    'case_common_doc_number',           'case_common_doc_number_rewrite',
+    'case_common_doc_result',           'case_common_doc_result_date',
+    'case_common_document_article',     'case_common_document_num',
+    'case_common_document_type',        'case_common_doc_validity_date',
+    'case_common_entry_date',           'case_common_event_m2',
+    'case_common_judge',                'case_common_parts_m2_search',
+    'case_common_parts_name',           'case_common_parts_type',
+    'case_common_type',                 'case_court_type',
+    'case_court_type_cat',              'case_doc_district_rf',
+    'case_doc_instance',                'case_doc_kind',
+    'case_doc_kind_prefix',             'case_doc_kind_short',
+    'case_doc_load_date',               'case_doc_source',
+    'case_doc_source_table',            'case_doc_subject_number',
+    'case_doc_subject_rf',              'case_doc_subject_rf_code',
+    'case_document_articles',           'case_document_category_article',
+    'case_document_id',                 'case_document_load_date',
+    'case_document_num_build',          'case_document_publ_date',
+    'case_document_result',             'case_document_result_date',
+    'case_document_results',            'case_document_types',
+    'case_doc_vnkod',                   'case_id',
+    'case_id_region',                   'case_regbasenum',
+    'case_short_number',                'case_user_doc_court',
+    'case_user_doc_entry_date',         'case_user_doc_number',
+    'case_user_doc_number_rewrite',     'case_user_doc_result',
+    'case_user_doc_result_date',        'case_user_document_num',
+    'case_user_document_text_tag',      'case_user_document_type',
+    'case_user_doc_validity_date',      'case_user_entry_date',
+    'case_user_judge',                  'case_user_type',
+    'case_year',                        'case_year_entry',
+    'case_year_result',                 'court_deside',
+    'name',                             'timestamp',
+    'txt_exist',                        'u_case_common_article',
+    'u_case_user_article',              'u_common_case_defendant_m',
+    'u_common_case_defendant_m_search', 'u_common_case_defendant_name'
+    ]
 
 
-    query = yaml.safe_load(textwrap.dedent(f'''
-        doNotSaveHistory: true
-        request:
-          start: {offset}
-          rows: {LIMIT}
-          type: MULTIQUERY
-          multiqueryRequest:
-            queryRequests:
-              - type: Q
-                request: |
-                    {json.dumps(q, ensure_ascii=False)}
-                operator: AND
-                queryRequestRole: CATEGORIES
-          sorts:
-            - field: case_common_doc_result_date
-              order: desc
-          simpleSearchFieldsBundle: default
-          customFilters:
-            - name: case_document_category_article_cat
-              operator: SEW
-              query: 6.1.1
-              type: FACET_FREE_FILTER
-              fieldName: case_document_category_article_cat
-              not: false
-          facet:
-            field:
-              - type
-              - case_document_category_article_cat
-          facetLimit: 21
-          hlFragSize: 1000
-          groupLimit: 3
-          woBoost: false
-
-          additionalFields:
-            - adm_case_common_article
-            - case_common_doc_court
-            - case_common_doc_number
-            - case_common_doc_number_rewrite
-            - case_common_doc_result_date
-            - case_common_document_num
-            - case_common_judge
-            - case_common_parts_law_article
-            - case_court_type
-            - case_court_type_cat
-            - case_doc_district_rf
-            - case_doc_instance
-            - case_doc_kind
-            - case_doc_kind_short
-            - case_doc_source
-            - case_doc_source_table
-            - case_doc_subject_rf
-            - case_doc_subject_rf_code
-            - case_document_articles
-            - case_document_category_article
-            - case_document_result_date
-            - case_doc_vnkod
-            - case_user_doc_court
-            - case_user_doc_number
-            - case_user_doc_number_rewrite
-            - case_user_doc_result_date
-            - case_user_document_num
-            - case_user_document_text_tag
-            - case_user_judge
-            - case_year
-            - check_type
-            - court_adress
-            - court_area
-            - court_area2
-            - court_case_entry_date
-            - court_case_result
-            - court_case_result_date
-            - court_city
-            - court_city2
-            - court_deside
-            - court_document_documentype1
-            - court_document_law_article
-            - court_name_court
-            - court_oktmo
-            - court_subject_rf
-            - document_links_inet
-            - m_case_user_sub_type
-            - m_case_user_type
-            - name
-            - ora_main_law_article
-            - timestamp
-            - txt_exist
-        '''))
-    return query
-
+additionalFields_adm = [
+  'adm_case_common_article',        'adm_case_common_name',
+  'adm_case_id',                    'adm_case_result',
+  'adm_case_user_name',             'case_common_doc_court',
+  'case_common_doc_entry_date',     'case_common_doc_number',
+  'case_common_doc_number_rewrite', 'case_common_doc_result',
+  'case_common_doc_result_date',    'case_common_document_num',
+  'case_common_document_type',      'case_common_doc_validity_date',
+  'case_common_entry_date',         'case_common_event_date',
+  'case_common_event_m2',           'case_common_event_m2_search',
+  'case_common_event_name',         'case_common_judge',
+  'case_common_parts_breaking_law', 'case_common_parts_law_article',
+  'case_common_parts_m2_search',    'case_common_parts_name',
+  'case_common_parts_type',         'case_court_type',
+  'case_court_type_cat',            'case_doc_district_rf',
+  'case_doc_instance',              'case_doc_kind',
+  'case_doc_kind_prefix',           'case_doc_kind_short',
+  'case_doc_load_date',             'case_doc_source',
+  'case_doc_source_table',          'case_doc_subject_number',
+  'case_doc_subject_rf',            'case_doc_subject_rf_code',
+  'case_document_articles',         'case_document_category_article',
+  'case_document_id',               'case_document_load_date',
+  'case_document_num_build',        'case_document_publ_date',
+  'case_document_result_date',      'case_document_types',
+  'case_doc_vnkod',                 'case_hear_date',
+  'case_hear_date_s',               'case_hear_m2',
+  'case_hear_m2_search',            'case_id',
+  'case_id_region',                 'case_regbasenum',
+  'case_short_number',              'case_user_doc_court',
+  'case_user_doc_entry_date',       'case_user_doc_number',
+  'case_user_doc_number_rewrite',   'case_user_doc_result',
+  'case_user_doc_result_date',      'case_user_document_num',
+  'case_user_document_text_tag',    'case_user_document_type',
+  'case_user_doc_validity_date',    'case_user_entry_date',
+  'case_user_judge',                'case_year',
+  'case_year_entry',                'case_year_result',
+  'court_deside',                   '__id',
+  'name',                           '__shard',
+  'timestamp',                      'txt_exist',
+  '__type'
+  ]
