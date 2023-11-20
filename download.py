@@ -79,7 +79,8 @@ while query_date.year == int(year):
         time.sleep(delay)
 
     logging.info(f'Compress day results {date=}')
-    os.system(f'tar --remove-files -cJf {DATA_DIR}/{date}.tar.xz {DATA_DIR}/{date}.*.response')
+    # Use XZ_OPT to set enable multithreaded mode and level-3 compression.
+    os.system(f'XZ_OPT=-3T0 tar --remove-files -cJf {DATA_DIR}/{date}.tar.xz {DATA_DIR}/{date}.*.response')
 
     offset = 0
     query_date = next_date
