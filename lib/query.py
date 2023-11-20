@@ -189,8 +189,6 @@ additionalFields_adm = [
   'case_user_doc_validity_date',    'case_user_entry_date',
   'case_user_judge',                'case_year',
   'case_year_entry',                'case_year_result',
-  'court_deside',                   '__id',
-  'name',                           '__shard',
+  'court_deside',                   'name',
   'timestamp',                      'txt_exist',
-  '__type'
   ]
