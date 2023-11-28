@@ -297,3 +297,17 @@ u_common_case_defendant_name:
     isArray: true
     skip: true
     comment: В u_common_case_defendant_m более полная информация
+
+## Дальше поля из административных дел
+
+adm_case_common_article: {}
+adm_case_common_name: {}
+adm_case_id: {}
+adm_case_result: {}
+adm_case_user_name: {}
+case_common_event_date: {}
+case_common_event_m2_search: {}
+case_common_event_name: {}
+case_common_parts_breaking_law: {}
+case_common_parts_law_article: {}
+case_hear_date: {}
