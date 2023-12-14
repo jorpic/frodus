@@ -229,7 +229,7 @@ case_user_document_num:
     value: longValue
     comment: Количество документов в деле?
 
-case_user_document_text_tag: {}
+case_user_document_text_tag: {skip: true}
 
 case_user_document_type:
     duplicate: case_common_document_type
