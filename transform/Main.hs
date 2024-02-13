@@ -3,12 +3,13 @@ import Control.Monad.IO.Class
 import Control.Monad.Reader
 import Control.Lens
 import Data.ByteString.Lazy qualified as LBS
-import Data.Map (Map)
-import Data.Map qualified as Map
-import Data.Maybe (catMaybes)
+import Data.Map.Strict (Map)
+import Data.Map.Strict qualified as Map
 import Data.Text (Text)
 import Data.Text.Lazy.IO qualified as L
+import UnliftIO.Exception (throwString, catch, StringException)
 
+import System.IO (hPrint, stderr)
 import System.Environment (getArgs)
 import GHC.Generics
 
@@ -31,6 +32,7 @@ data FieldSpec = FieldSpec
   , fs_comment :: Maybe Text
   , fs_duplicate :: Maybe Text
   , fs_const :: Maybe Text
+  , fs_html2md :: Maybe Bool
   }
   deriving Generic
 
@@ -47,7 +49,6 @@ data Env = Env
 
 type App a = ReaderT Env IO a
 
-
 main :: IO ()
 main = do
   -- load/create dictionaries
@@ -56,16 +57,12 @@ main = do
     [] -> error "Not enough arguments"
     specFile : dataFiles -> Yaml.decodeFileEither specFile >>= \case
       Left err -> logErr err
-      Right spec -> do
-        runReaderT (main' dataFiles) $ Env spec
+      Right spec -> runReaderT (main' dataFiles) $ Env spec
 
 main' :: [FilePath] -> App ()
 main' = mapM_ $ \file -> do
   liftIO (LBS.readFile file)
     >>= processTarEntries . Tar.read . Lzma.decompress
-
-logErr :: (MonadIO m, Show e) => e -> m ()
-logErr = error . show
 
 processTarEntries :: Tar.Entries Tar.FormatError -> App ()
 processTarEntries = \case
@@ -90,38 +87,46 @@ processJsonDoc doc = do
   case doc ^? key "id" . _Value of
     Nothing -> logErr ("No id in document" :: Text)
     Just hash -> do
-      spec <- asks fieldSpec
+      Env {fieldSpec} <- ask
 
-      let fields = catMaybes $ map
-            (transformField spec)
-            (doc ^.. key "additionalFields" . values)
-      let res = Map.fromList $ ("id", hash) : fields
+      res <- foldM
+        (\obj val -> addField fieldSpec obj val
+          `catch` \err -> logErr (err :: StringException) >> return obj)
+        (Map.singleton "id" hash)
+        (doc ^.. key "additionalFields" . values)
 
-      let textFld = "case_user_document_text_tag"
-      res' <- case Map.lookup textFld res of
-        Nothing -> return res
-        Just html -> do
-          md <- liftIO $ html2md (html ^. _String)
-          return $ Map.insert textFld (Aeson.toJSON md) res
+      liftIO $ L.putStrLn $ Aeson.encodeToLazyText res
 
-      liftIO $ L.putStrLn $ Aeson.encodeToLazyText res'
+type Obj = Map Text Aeson.Value
 
-transformField :: FieldSpecMap -> Aeson.Value -> Maybe (Text, Aeson.Value)
-transformField specMap v = do
-  name <- v ^? key "name" . _String
-  spec <- Map.lookup name specMap
+addField :: FieldSpecMap -> Obj -> Aeson.Value -> App Obj
+addField specMap obj val = do
+  name <- throwNothing
+    (val ^? key "name" . _String)
+    ("No name in field object" :: Text, val)
 
-  let skip = any (== Just True) [
-        fs_skip spec,
-        const True <$> fs_const spec,
-        const True <$> fs_duplicate spec]
+  FieldSpec{..} <- throwNothing
+    (Map.lookup name specMap)
+    ("Unknow field" :: Text, name)
 
-  case skip of
-    True -> Nothing
-    False -> do
-      valFld <- fs_value spec <|> Just "value"
-      value <- v ^? key valFld . _Value
-      return (name, value)
+  let skip = fs_skip == Just True
+        || fs_const /= Nothing
+        || fs_duplicate /= Nothing
+
+  if skip
+    then return obj
+    else do
+      newVal <- throwNothing
+        (do
+          valFld <- fs_value <|> Just "value"
+          val ^? key valFld . _Value)
+        ("Can't get value" :: Text, val)
+
+      if fs_html2md == Just True
+        then do
+          md <- liftIO $ html2md (newVal ^. _String)
+          return $ Map.insert name (Aeson.toJSON md) obj
+        else return $ Map.insert name newVal obj
 
   -- collect isArray
 
@@ -134,3 +139,12 @@ html2md str = Pandoc.runIOorExplode
     { writerWrapText = WrapNone
     , writerExtensions = pandocExtensions
     }
+
+-- --
+
+throwNothing :: Show err => Maybe val -> err -> App val
+throwNothing Nothing err = throwString $ show err
+throwNothing (Just v) _  = pure v
+
+logErr :: (MonadIO m, Show e) => e -> m ()
+logErr = liftIO . hPrint stderr

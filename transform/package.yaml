@@ -16,6 +16,8 @@ default-extensions:
   - LambdaCase
   - OverloadedStrings
   - TupleSections
+  - NamedFieldPuns
+  - RecordWildCards
 
 executables:
   transform:
@@ -35,3 +37,4 @@ executables:
       - mtl
       - containers
       - yaml
+      - unliftio
