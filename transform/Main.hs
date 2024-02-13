@@ -3,6 +3,7 @@ import Control.Monad.IO.Class
 import Control.Monad.Reader
 import Control.Lens
 import Data.ByteString.Lazy qualified as LBS
+import Data.ByteString.Lazy.Char8 qualified as LBS8
 import Data.Map.Strict (Map)
 import Data.Map.Strict qualified as Map
 import Data.Text (Text)
@@ -17,8 +18,6 @@ import Data.Aeson qualified as Aeson
 import Data.Aeson.Text qualified as Aeson
 import Data.Aeson.Lens
 import Data.Yaml qualified as Yaml
-import Codec.Archive.Tar qualified as Tar
-import Codec.Compression.Lzma qualified as Lzma
 import Text.Pandoc as Pandoc
 
 
@@ -51,32 +50,20 @@ type App a = ReaderT Env IO a
 
 main :: IO ()
 main = do
-  -- load/create dictionaries
   args <- getArgs
   case args of
-    [] -> error "Not enough arguments"
-    specFile : dataFiles -> Yaml.decodeFileEither specFile >>= \case
+    [specFile] -> Yaml.decodeFileEither specFile >>= \case
       Left err -> logErr err
-      Right spec -> runReaderT (main' dataFiles) $ Env spec
+      Right spec -> do
+        let env = Env spec
+        lns <- LBS8.lines <$> LBS.getContents
+        runReaderT (forM_ lns processJson) env
+    _ -> error "Usage:\n\t $ transform <FIELD_SPEC>"
 
-main' :: [FilePath] -> App ()
-main' = mapM_ $ \file -> do
-  liftIO (LBS.readFile file)
-    >>= processTarEntries . Tar.read . Lzma.decompress
 
-processTarEntries :: Tar.Entries Tar.FormatError -> App ()
-processTarEntries = \case
-  Tar.Done -> return ()
-  Tar.Fail err -> logErr err
-  Tar.Next e es -> do
-    case Tar.entryContent e of
-      Tar.NormalFile str _ -> processFile str
-      err -> logErr err
-    processTarEntries es
-
-processFile :: LBS.ByteString -> App ()
-processFile str =
-  case Aeson.eitherDecode str of
+processJson :: LBS.ByteString -> App ()
+processJson str
+  = case Aeson.eitherDecode str of
     Left err -> logErr err
     Right jsn -> mapM_ processJsonDoc
       $ (jsn :: Aeson.Value)

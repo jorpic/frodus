@@ -31,14 +31,11 @@ executable transform
       aeson
     , base
     , bytestring
-    , cassava
     , containers
     , lens
     , lens-aeson
-    , lzma
     , mtl
     , pandoc
-    , tar
     , text
     , unliftio
     , yaml
