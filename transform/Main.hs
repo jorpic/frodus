@@ -8,8 +8,9 @@ import Data.Map.Strict (Map)
 import Data.Map.Strict qualified as Map
 import Data.Text (Text)
 import Data.Text.Lazy.IO qualified as L
-import UnliftIO.Exception (throwString, catch, StringException)
+import Data.Vector qualified as Vec
 
+import UnliftIO.Exception (throwString, catch, StringException)
 import System.IO (hPrint, stderr)
 import System.Environment (getArgs)
 import GHC.Generics
@@ -103,19 +104,26 @@ addField specMap obj val = do
   if skip
     then return obj
     else do
-      newVal <- throwNothing
+      val' <- throwNothing
         (do
           valFld <- fs_value <|> Just "value"
           val ^? key valFld . _Value)
         ("Can't get value" :: Text, val)
 
-      if fs_html2md == Just True
-        then do
-          md <- liftIO $ html2md (newVal ^. _String)
-          return $ Map.insert name (Aeson.toJSON md) obj
-        else return $ Map.insert name newVal obj
+      val'' <- case fs_html2md of
+        Just True -> liftIO $ Aeson.toJSON <$> html2md (val' ^. _String)
+        _ -> pure val'
 
-  -- collect isArray
+      let val''' = case fs_isArray of
+            Just True -> Aeson.Array
+              $ case Map.lookup name obj of
+                Just (Aeson.Array xs) -> Vec.snoc xs val''
+                _ -> Vec.singleton val''
+            _ -> val''
+
+      return $ Map.insert name val''' obj
+
+-- --
 
 html2md :: Text -> IO Text
 html2md str = Pandoc.runIOorExplode
@@ -126,8 +134,6 @@ html2md str = Pandoc.runIOorExplode
     { writerWrapText = WrapNone
     , writerExtensions = pandocExtensions
     }
-
--- --
 
 throwNothing :: Show err => Maybe val -> err -> App val
 throwNothing Nothing err = throwString $ show err

@@ -35,3 +35,4 @@ executables:
       - containers
       - yaml
       - unliftio
+      - vector
