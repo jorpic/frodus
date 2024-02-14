@@ -4,14 +4,19 @@ import Control.Monad.Reader
 import Control.Lens
 import Data.ByteString.Lazy qualified as LBS
 import Data.ByteString.Lazy.Char8 qualified as LBS8
+import Data.Maybe (fromMaybe)
 import Data.Map.Strict (Map)
 import Data.Map.Strict qualified as Map
+import Data.Set (Set)
+import Data.Set qualified as Set
 import Data.Text (Text)
+import Data.Text qualified as T
 import Data.Text.Lazy.IO qualified as L
 import Data.Vector qualified as Vec
+import Data.IORef (IORef, newIORef, readIORef, modifyIORef)
 
-import UnliftIO.Exception (throwString, catch, StringException)
 import System.IO (hPrint, stderr)
+import UnliftIO.Exception (throwString, catch, StringException)
 import System.Environment (getArgs)
 import GHC.Generics
 
@@ -45,6 +50,7 @@ instance Yaml.FromJSON FieldSpec where
 
 data Env = Env
   { fieldSpec :: FieldSpecMap
+  , seenDocsRef :: IORef (Set (Text, Int))
   }
 
 type App a = ReaderT Env IO a
@@ -56,7 +62,7 @@ main = do
     [specFile] -> Yaml.decodeFileEither specFile >>= \case
       Left err -> logErr err
       Right spec -> do
-        let env = Env spec
+        env <- Env spec <$> newIORef Set.empty
         lns <- LBS8.lines <$> LBS.getContents
         runReaderT (forM_ lns processJson) env
     _ -> error "Usage:\n\t $ transform <FIELD_SPEC>"
@@ -75,7 +81,7 @@ processJsonDoc doc = do
   case doc ^? key "id" . _Value of
     Nothing -> logErr ("No id in document" :: Text)
     Just hash -> do
-      Env {fieldSpec} <- ask
+      Env {fieldSpec, seenDocsRef} <- ask
 
       res <- foldM
         (\obj val -> addField fieldSpec obj val
@@ -83,7 +89,18 @@ processJsonDoc doc = do
         (Map.singleton "id" hash)
         (doc ^.. key "additionalFields" . values)
 
-      liftIO $ L.putStrLn $ Aeson.encodeToLazyText res
+      let textLen = fromMaybe 0 $ do
+            txt <- Map.lookup "case_user_document_text_tag" res
+            T.length <$> txt ^? _String
+      let dupKey = (hash ^. _String, textLen)
+
+      liftIO $ do
+        seenDocs <- readIORef seenDocsRef
+        if Set.member dupKey seenDocs
+          then logErr ("skipping duplicate" :: Text, dupKey)
+          else do
+            modifyIORef seenDocsRef $ Set.insert dupKey
+            L.putStrLn $ Aeson.encodeToLazyText res
 
 type Obj = Map Text Aeson.Value
 
