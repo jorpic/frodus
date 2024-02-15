@@ -17,4 +17,4 @@ for ln in sys.stdin:
             seen[id].append(hs)
     else:
         seen[id] = [hs]
-        print(ln)
+        print(ln, end='')
