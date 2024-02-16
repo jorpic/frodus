@@ -15,6 +15,7 @@ for ln in sys.stdin:
         if hs not in seen[id]:
             print('new text:', hs, file=sys.stderr)
             seen[id].append(hs)
+            print(ln, end='')
     else:
         seen[id] = [hs]
         print(ln, end='')
