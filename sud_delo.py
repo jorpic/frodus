@@ -20,6 +20,10 @@ with open('urls.txt') as f:
         urls.append(url.strip())
 
 
+ip_addr = requests.get("https://ipinfo.io/ip").text
+print(f'Fetching via {ip_addr=}', file=sys.stderr)
+
+
 jobs = queue.Queue(num_threads*2)
 results = queue.Queue()
 
