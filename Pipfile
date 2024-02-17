@@ -4,9 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-requests = "*"
 fake-useragent = "*"
 parsel = "*"
+requests = {extras = ["socks"], version = "*"}
 
 [dev-packages]
 
