@@ -6,12 +6,13 @@ import parsel
 import requests
 import queue
 import threading
+import fake_useragent
 
 from urllib3.exceptions import InsecureRequestWarning
 from datetime import datetime, timedelta
 
-start_date = datetime.fromisoformat(sys.argv[1])
-progress = {}
+num_threads = int(sys.argv[1])
+start_date = datetime.fromisoformat(sys.argv[2])
 
 urls = []
 with open('urls.txt') as f:
@@ -19,7 +20,7 @@ with open('urls.txt') as f:
         urls.append(url.strip())
 
 
-jobs = queue.Queue(100)
+jobs = queue.Queue(num_threads*2)
 results = queue.Queue()
 
 requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
@@ -32,9 +33,9 @@ def output():
 
 
 def worker():
+    ua = fake_useragent.UserAgent()
     rq = requests.Session()
     rq.headers.update({
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:89.0) Gecko/20100101 Firefox/89.0',
         'Accept': 'application/json, text/javascript, */*; q=0.01',
         'Accept-Language': 'en-US,en;q=0.5',
         'Accept-Encoding': 'gzip, deflate, br',
@@ -55,6 +56,7 @@ def worker():
                'ts': datetime.now().isoformat()
                }
         try:
+            rq.headers.update({'User-Agent': ua.random})
             response = rq.get(url=query, verify=False)
             if response.status_code == 200:
                 p = parsel.Selector(body=response.content, encoding='windows-1251')
@@ -67,14 +69,14 @@ def worker():
             else:
                 res['error'] = {'msg': 'unexpected http status',
                                 'code': response.status_code}
-        except ConnectionError as err:
+        except Exception as err:
             res['error'] = {'msg': repr(err)}
 
         results.put(res)
 
 
 threading.Thread(target=output).start()
-for _ in range(0, 10):
+for _ in range(0, num_threads):
     threading.Thread(target=worker).start()
 
 
