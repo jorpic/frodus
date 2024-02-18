@@ -1,12 +1,8 @@
 109gvs--svd.sudrf.ru
 1vovs--hbr.sudrf.ru
 1zovs--spb.sudrf.ru
-235gvs--msk.sudrf.ru
-26gvs--kaz.sudrf.ru
 2vovs--cht.sudrf.ru
 35gvs--kam.sudrf.ru
-40gvs--blg.sudrf.ru
-80gvs--msk.sudrf.ru
 abakansky--hak.sudrf.ru
 aban--krk.sudrf.ru
 abatsky--tum.sudrf.ru
@@ -53,7 +49,6 @@ alsheevsky--bkr.sudrf.ru
 altaisky--alt.sudrf.ru
 altaysky--hak.sudrf.ru
 alushta--krm.sudrf.ru
-anadyr--chao.sudrf.ru
 anadyrgor--chao.sudrf.ru
 andropovsky--stv.sudrf.ru
 angarsky--irk.sudrf.ru
@@ -105,7 +100,6 @@ baltasinsky--tat.sudrf.ru
 baltiysky--kln.sudrf.ru
 baltovs--kln.sudrf.ru
 baltyiskygvs--kln.sudrf.ru
-barda--perm.sudrf.ru
 barguzinsky--bur.sudrf.ru
 barun-hemchikskiy--tva.sudrf.ru
 bashmakovsky--pnz.sudrf.ru
@@ -125,7 +119,6 @@ belinsky--pnz.sudrf.ru
 belogorskiy--krm.sudrf.ru
 belokalitvensky--ros.sudrf.ru
 belokataisky--bkr.sudrf.ru
-belokurihinsky--alt.sudrf.ru
 belorecky--bkr.sudrf.ru
 belozersky--krg.sudrf.ru
 belozersky--vld.sudrf.ru
@@ -139,12 +132,10 @@ beysky--hak.sudrf.ru
 bezhanicky--psk.sudrf.ru
 bezhitsky--brj.sudrf.ru
 bgvs--alt.sudrf.ru
-bgvs--brb.sudrf.ru
 bgvs--stv.sudrf.ru
 bichursky--bur.sudrf.ru
 bilibinsky--chao.sudrf.ru
 birilus--krk.sudrf.ru
-birobidzhansky--brb.sudrf.ru
 birsky--bkr.sudrf.ru
 biysky--alt.sudrf.ru
 biyskygor--alt.sudrf.ru
@@ -275,13 +266,11 @@ derbent-gs--dag.sudrf.ru
 derbent-rs--dag.sudrf.ru
 desnogorsk--sml.sudrf.ru
 diatkovsky--brj.sudrf.ru
-digorsky--wlk.sudrf.ru
 dikson--dud.sudrf.ru
 dimitrovsky--kst.sudrf.ru
 diurtiulinsky--bkr.sudrf.ru
 diveevsky--nnov.sudrf.ru
 divnogorsk--krk.sudrf.ru
-djeirah--ing.sudrf.ru
 d-konstantinovsky--nnov.sudrf.ru
 dmitrov--mo.sudrf.ru
 dmitrovsky--orl.sudrf.ru
@@ -393,7 +382,6 @@ gvs--adg.sudrf.ru
 gvs--bkr.sudrf.ru
 gvsborza--cht.sudrf.ru
 gvs--brj.sudrf.ru
-gvs--chao.sudrf.ru
 gvs--chn.sudrf.ru
 gvs--cht.sudrf.ru
 gvs--hak.sudrf.ru
@@ -448,7 +436,6 @@ insarsky--mor.sudrf.ru
 intasud--komi.sudrf.ru
 inzhavinsky--tmb.sudrf.ru
 ipatovsky--stv.sudrf.ru
-irafsky--wlk.sudrf.ru
 irbey--krk.sudrf.ru
 irkutskygvs--irk.sudrf.ru
 irkutsky--irk.sudrf.ru
@@ -583,7 +570,6 @@ kob--jak.sudrf.ru
 kochevsky--perm.sudrf.ru
 kochubeevsky--stv.sudrf.ru
 kogalym--hmao.sudrf.ru
-kola--mrm.sudrf.ru
 kolchuginsky--wld.sudrf.ru
 kolishleisky--pnz.sudrf.ru
 kologrivsky--kst.sudrf.ru
@@ -627,7 +613,6 @@ kraevoy--stv.sudrf.ru
 krasnoar--chel.sudrf.ru
 krasnoarmeisky--chv.sudrf.ru
 krasnoarmeysky--prm.sudrf.ru
-krasnochekovsky--alt.sudrf.ru
 krasnogorsk--mo.sudrf.ru
 krasnogorsky--alt.sudrf.ru
 krasnogorsky--brj.sudrf.ru
@@ -704,7 +689,6 @@ lenins--krk.sudrf.ru
 leninsky--alt.sudrf.ru
 leninsky--ast.sudrf.ru
 leninsky--bkr.sudrf.ru
-leninsky--brb.sudrf.ru
 leninsky--chv.sudrf.ru
 leninsky--irk.sudrf.ru
 leninsky--iwn.sudrf.ru
@@ -786,7 +770,6 @@ maysky--kbr.sudrf.ru
 mcensky--orl.sudrf.ru
 mednogorsky--orb.sudrf.ru
 medvedevsky--mari.sudrf.ru
-megion--hmao.sudrf.ru
 melenkovsky--wld.sudrf.ru
 meleuzovsky--bkr.sudrf.ru
 mendeleevsky--tat.sudrf.ru
@@ -828,7 +811,6 @@ morozovsky--ros.sudrf.ru
 morshansky--tmb.sudrf.ru
 moskalenkicourt--oms.sudrf.ru
 moskovsky--chv.sudrf.ru
-moskovskygvs--msk.sudrf.ru
 moskovsky--kln.sudrf.ru
 moskovsky--nnov.sudrf.ru
 moskovsky--riz.sudrf.ru
@@ -848,7 +830,6 @@ murta--krk.sudrf.ru
 musliumovsky--tat.sudrf.ru
 myasnikovsky--ros.sudrf.ru
 myshkinsky--jrs.sudrf.ru
-naberezhno-chelninsky--tat.sudrf.ru
 nadezhdinsky--prm.sudrf.ru
 nadterechny--chn.sudrf.ru
 nadymsky--ynao.sudrf.ru
@@ -945,7 +926,6 @@ oblsud--blg.sudrf.ru
 oblsud--brj.sudrf.ru
 oblsud--chao.sudrf.ru
 oblsud--chel.sudrf.ru
-oblsud--cht.sudrf.ru
 oblsud--hmao.sudrf.ru
 oblsud--irk.sudrf.ru
 oblsud--iwn.sudrf.ru
@@ -985,7 +965,6 @@ oblsud--vol.sudrf.ru
 oblsud--vrn.sudrf.ru
 oblsud--wld.sudrf.ru
 oblsud--ynao.sudrf.ru
-obluchensky--brb.sudrf.ru
 obninsky--klg.sudrf.ru
 ocher--perm.sudrf.ru
 octobercourt--oms.sudrf.ru
@@ -1300,7 +1279,6 @@ slancevsky--lo.sudrf.ru
 slavgorodsky--alt.sudrf.ru
 slavsky--kln.sudrf.ru
 sludiansky--irk.sudrf.ru
-smidovichsky--brb.sudrf.ru
 smirnihovskiy--sah.sudrf.ru
 smolensky--alt.sudrf.ru
 smol--sml.sudrf.ru
@@ -1340,7 +1318,6 @@ sovetsky--kln.sudrf.ru
 sovetsky--mari.sudrf.ru
 sovetsky--nnov.sudrf.ru
 sovetsky--oms.sudrf.ru
-sovetsky--orb.sudrf.ru
 sovetsky--orl.sudrf.ru
 sovetsky--prm.sudrf.ru
 sovetsky--riz.sudrf.ru
@@ -1487,11 +1464,9 @@ ufimsky--bkr.sudrf.ru
 uganskray--hmao.sudrf.ru
 uglegorskiy--sah.sudrf.ru
 uglichsky--jrs.sudrf.ru
-uglovsky--alt.sudrf.ru
 ugorsk--hmao.sudrf.ru
 ugvs--prm.sudrf.ru
 uholovsky--riz.sudrf.ru
-uisk--chel.sudrf.ru
 ujur--krk.sudrf.ru
 ukalmansky--alt.sudrf.ru
 ukatav--chel.sudrf.ru
@@ -1576,7 +1551,6 @@ vichugsky--iwn.sudrf.ru
 vidnoe--mo.sudrf.ru
 vigonichsky--brj.sudrf.ru
 viksunsky--nnov.sudrf.ru
-vikulovsky--tum.sudrf.ru
 vilegsud--arh.sudrf.ru
 viluchinsky--kam.sudrf.ru
 vilyui--jak.sudrf.ru
