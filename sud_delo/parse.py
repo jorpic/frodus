@@ -19,6 +19,7 @@ def parse_cases(html):
     if len(table) == 0:
         if html.find('дел не назначено') == -1:
             return Err(('unusual html', ln))
+        return Ok([])
 
     rows = table.xpath('//tr')
     if len(rows) == 0:
