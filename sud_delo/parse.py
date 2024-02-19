@@ -21,6 +21,8 @@ def parse_cases(html):
             return Err(('unusual html', ln))
 
     rows = table.xpath('//tr')
+    if len(rows) == 0:
+        return Err(('no rows in tablcont', html))
 
     header = [
         ' '.join(col.xpath('.//text()').getall())
