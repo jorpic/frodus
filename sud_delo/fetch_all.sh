@@ -1,55 +1,44 @@
 #!/usr/bin/env bash
 
-./mk_tasks.py 2024-08-01 2024-09-01 urls.json \
-  | sort -R \
-  | ./fetch.py \
-  > 2024-08.0.jsonl &
+MAX_JOBS=5
 
-./mk_tasks.py 2024-09-01 2024-10-01 urls.json \
-  | sort -R \
-  | ./fetch.py \
-  > 2024-09.0.jsonl &
+DATE=$1
+END_DATE=$2
+URLS=$3
 
-./mk_tasks.py 2024-10-01 2024-11-01 urls.json \
-  | sort -R \
-  | ./fetch.py \
-  > 2024-10.0.jsonl &
+clean_exit() {
+  echo "Ctrl-C! Waiting for remaining jobs to finish..."
+  wait
+  exit 1
+}
 
-./mk_tasks.py 2024-11-01 2024-12-01 urls.json \
-  | sort -R \
-  | ./fetch.py \
-  > 2024-11.0.jsonl &
+trap clean_exit INT
 
-./mk_tasks.py 2024-12-01 2025-01-01 urls.json \
-  | sort -R \
-  | ./fetch.py \
-  > 2024-12.0.jsonl &
+fetch() {
+  local date=$1
+  local urls=$2
+  jq -c ".[] | {date: \"$date\", sud: .url}" $urls \
+    | sort -R \
+    | ./fetch.py \
+    | xz \
+    > ${date}.jsonl.xz
+}
 
-wait
+JOBS_STARTED=0
+while : ; do
+  echo `date --iso-8601=seconds` ' -- ' $DATE
+  fetch $DATE $URLS &
 
-./mk_tasks.py 2025-01-01 2025-02-01 urls.json \
-  | sort -R \
-  | ./fetch.py \
-  > 2025-01.0.jsonl &
+  # FIXME: It is possible that we miss finishing of a job.
+  # In that case JOBS_STARTED will not be decremented and we loose some
+  # parallelism.
+  if ((++JOBS_STARTED >= MAX_JOBS)) ; then
+    wait -n
+    ((JOBS_STARTED--))
+  fi
 
-./mk_tasks.py 2025-02-01 2025-03-01 urls.json \
-  | sort -R \
-  | ./fetch.py \
-  > 2025-02.0.jsonl &
-
-./mk_tasks.py 2025-03-01 2025-04-01 urls.json \
-  | sort -R \
-  | ./fetch.py \
-  > 2025-03.0.jsonl &
-
-./mk_tasks.py 2025-04-01 2025-05-01 urls.json \
-  | sort -R \
-  | ./fetch.py \
-  > 2025-04.0.jsonl &
-
-./mk_tasks.py 2025-05-01 2025-06-01 urls.json \
-  | sort -R \
-  | ./fetch.py \
-  > 2025-05.0.jsonl &
+  DATE=`date --iso-8601 --date "$DATE +1 day"`
+  [[ $DATE < $END_DATE ]] || break
+done
 
 wait
