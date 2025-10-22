@@ -2,90 +2,48 @@
 
 import sys
 import json
-import parsel
 
-class Err:
-    def __init__(self, val):
-        self.value = val
+import formats.F1 as F1
+import formats.F2 as F2
+from formats.commons import Ok, Err
 
-class Ok:
-    def __init__(self, val):
-        self.value = val
-
-def parse_cases(html):
-    p = parsel.Selector(text=html)
-    table = p.xpath('//table[@id="tablcont"]')
-
-    if len(table) == 0:
-        if html.find('дел не назначено') == -1:
-            return Err(('unusual html', ln))
-        return Ok([])
-
-    rows = table.xpath('//tr')
-    if len(rows) == 0:
-        return Err(('no rows in tablcont', html))
-
-    header = [
-        ' '.join(col.xpath('.//text()').getall())
-        for col in rows[0].xpath('.//td')]
-    if not is_valid_header(header):
-        return Err(('unusual table header', header))
-
-    category = None
-    cases = []
-    for row in rows[1:]:
-        new_cat = row.xpath('.//td[@colspan="8"]//text()').get()
-        if new_cat:
-            category = new_cat
-            continue
-
-        td = row.xpath('.//td')
-        cases.append({
-            'cat':    category,
-            'num':    all_text(td[1]),
-            'url':    td[1].xpath('.//a/@href').get(),
-            'time':   all_text(td[2]),
-            'place':  all_text(td[3]),
-            'info':   all_text(td[4]),
-            'judge':  all_text(td[5]),
-            'result': all_text(td[6]),
-            'docs':   td[7].xpath('.//@href').getall()})
-    return Ok(cases)
-
-
-def is_valid_header(header):
-    expected_header = [
-        '№ п/п',
-        'Номер дела',
-        'Время слушания',
-        'Место проведения (Зал судебного заседания)',
-        'Информация по делу',
-        'Судья',
-        'Результат слушания',
-        'Судебные акты']
-    return header == expected_header
-
-
-def all_text(selector, separator='\n'):
-    return separator.join(
-        [s.strip() for s in selector.xpath('.//text()').getall()])
+def parse(body):
+    errs = []
+    for p in [F1.parse_cases, F2.parse_cases]:
+        res = p(body)
+        if isinstance(res, Ok):
+            return Ok(res.value)
+        elif isinstance(res, Err):
+            errs.append(res.value)
+        else:
+            errs.append(('unexpected parser result', res))
+    return Err(errs)
 
 
 def main():
     for ln in sys.stdin:
         js = json.loads(ln)
-        if 'html' not in js:
-            print(ln, end='')
+        body = js['body']
+
+        if js['status'] != 200:
             continue
 
-        res = parse_cases(js['html'])
+        msg = 'Информация временно недоступна. Приносим свои извинения. Попробуйте обратиться позже или обратитесь непосредственно в суд.'
+        if body.find(msg) != -1:
+            # print(js.get('q'), 'try later', file=sys.stderr)
+            continue
+
+        msg = 'Не определен ни один сервер, на котором расположен модуль сопряжения с БД'
+        if body.find(msg) != -1:
+            # print(js.get('q'), 'check this err!!', file=sys.stderr)
+            continue
+
+        res = parse(body)
         if isinstance(res, Ok):
-            del js['html']
+            del js['body']
             js['cases'] = res.value
             print(json.dumps(js, ensure_ascii=False))
-        elif isinstance(res, Err):
-            print(res.value, file=sys.stderr)
         else:
-            print('unexpected result from get_cases', res, file=sys.stderr)
+            print(js.get('q'), res.value, file=sys.stderr)
 
 main()
