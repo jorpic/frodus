@@ -26,24 +26,26 @@ def main():
         body = js['body']
 
         if js['status'] != 200:
+            print(js.get('sud'), 'err: status', file=sys.stderr)
             continue
 
         msg = 'Информация временно недоступна. Приносим свои извинения. Попробуйте обратиться позже или обратитесь непосредственно в суд.'
         if body.find(msg) != -1:
-            # print(js.get('q'), 'try later', file=sys.stderr)
+            print(js.get('sud'), 'err: try again', file=sys.stderr)
             continue
 
         msg = 'Не определен ни один сервер, на котором расположен модуль сопряжения с БД'
         if body.find(msg) != -1:
-            # print(js.get('q'), 'check this err!!', file=sys.stderr)
+            print(js.get('sud'), 'err: DB', file=sys.stderr)
             continue
 
         res = parse(body)
         if isinstance(res, Ok):
-            del js['body']
-            js['cases'] = res.value
-            print(json.dumps(js, ensure_ascii=False))
+            for case in res.value:
+                case['sud'] = js['sud']
+                case['date'] = js['date']
+                print(json.dumps(case, ensure_ascii=False))
         else:
-            print(js.get('q'), res.value, file=sys.stderr)
+            print(js.get('sud'), res.value, file=sys.stderr)
 
 main()

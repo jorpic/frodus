@@ -25,23 +25,26 @@ def parse_cases(html):
 
     category = None
     cases = []
-    for row in rows[1:]:
-        new_cat = row.xpath('.//td[@colspan="8"]//text()').get()
-        if new_cat:
-            category = new_cat
-            continue
+    try:
+        for row in rows[1:]:
+            new_cat = row.xpath('.//td[@colspan="8"]//text()').get()
+            if new_cat:
+                category = new_cat
+                continue
 
-        td = row.xpath('.//td')
-        cases.append({
-            'cat':    category,
-            'num':    all_text(td[1]),
-            'url':    td[1].xpath('.//a/@href').get(),
-            'time':   all_text(td[2]),
-            'place':  all_text(td[3]),
-            'info':   all_text(td[4]),
-            'judge':  all_text(td[5]),
-            'result': all_text(td[6]),
-            'docs':   td[7].xpath('.//@href').getall()})
+            td = row.xpath('.//td')
+            cases.append({
+                'cat':    category,
+                'num':    all_text(td[1]),
+                'url':    td[1].xpath('.//a/@href').get(),
+                'time':   all_text(td[2]),
+                'place':  all_text(td[3]),
+                'info':   all_text(td[4]),
+                'judge':  all_text(td[5]),
+                'result': all_text(td[6]),
+                'docs':   td[7].xpath('.//@href').getall()})
+    except Exception as err:
+        return Err(('parse error', err))
     return Ok(cases)
 
 def is_valid_header(header):

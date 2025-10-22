@@ -12,20 +12,12 @@ clean_exit() {
 trap clean_exit INT
 
 
-ERR_MSG="Информация временно недоступна|Не определен ни один сервер"
-
 retry() {
   local file=$1
   local err_file=${file/$ROUND.jsonl.xz/${ROUND}.err.jsonl.xz}
   local new_file=${file/$ROUND.jsonl.xz/$((ROUND+1)).jsonl.xz}
 
-  xz --decompress --keep $file
-  raw_file=${file%.xz}
-  { \
-    jq -c 'select(.status!=200)' $raw_file ; \
-    jq -c 'select(.status==200)' $raw_file | grep "$ERR_MSG" ; \
-  } | xz > $err_file
-  rm $raw_file
+  xzcat $file | ./filter_results.sh bad | xz > $err_file
 
   echo `date --iso-8601=seconds` ' -- ' \
     $file \
@@ -39,7 +31,7 @@ JOBS_STARTED=0
 
 ls *.${ROUND}.jsonl.xz | {
   while IFS= read -r file; do
-    retry $file
+    retry $file &
 
     if ((++JOBS_STARTED >= MAX_JOBS)) ; then
       wait -n
