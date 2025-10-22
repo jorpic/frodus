@@ -21,7 +21,7 @@ fetch() {
     | sort -R \
     | ./fetch.py \
     | xz \
-    > ${date}.jsonl.xz
+    > ${date}.0.jsonl.xz
 }
 
 JOBS_STARTED=0
