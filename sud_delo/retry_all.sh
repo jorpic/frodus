@@ -18,10 +18,14 @@ retry() {
   local file=$1
   local err_file=${file/$ROUND.jsonl.xz/${ROUND}.err.jsonl.xz}
   local new_file=${file/$ROUND.jsonl.xz/$((ROUND+1)).jsonl.xz}
+
+  xz --decompress --keep $file
+  raw_file=${file%.xz}
   { \
-    jq -c 'select(.status!=200)' $file ; \
-    jq -c 'select(.status==200)' $file | grep "$ERR_MSG" ; \
+    jq -c 'select(.status!=200)' $raw_file ; \
+    jq -c 'select(.status==200)' $raw_file | grep "$ERR_MSG" ; \
   } | xz > $err_file
+  rm $raw_file
 
   echo `date --iso-8601=seconds` ' -- ' \
     $file \
