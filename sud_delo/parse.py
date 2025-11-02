@@ -20,22 +20,27 @@ def parse(body):
     return Err(errs)
 
 
+ERR_MSG_1 = 'Информация временно недоступна. Приносим свои извинения. Попробуйте обратиться позже или обратитесь непосредственно в суд.'
+
+ERR_MSG_2 = 'Не определен ни один сервер, на котором расположен модуль сопряжения с БД'
+
 def main():
     for ln in sys.stdin:
         js = json.loads(ln)
-        body = js['body']
+        if 'err' in js:
+            print(js.get('sud'), js['err'], file=sys.stderr)
+            continue
 
         if js['status'] != 200:
             print(js.get('sud'), 'err: status', file=sys.stderr)
             continue
 
-        msg = 'Информация временно недоступна. Приносим свои извинения. Попробуйте обратиться позже или обратитесь непосредственно в суд.'
-        if body.find(msg) != -1:
+        body = js['body']
+        if body.find(ERR_MSG_1) != -1:
             print(js.get('sud'), 'err: try again', file=sys.stderr)
             continue
 
-        msg = 'Не определен ни один сервер, на котором расположен модуль сопряжения с БД'
-        if body.find(msg) != -1:
+        if body.find(ERR_MSG_2) != -1:
             print(js.get('sud'), 'err: DB', file=sys.stderr)
             continue
 

@@ -7,6 +7,6 @@ case "$1" in
     jq -c "select(.status==200 and (.body | test(\"$ERR_MSG\") | not))"
     ;;
   "bad")
-    jq -c "select(.status!=200 or (.body | test(\"$ERR_MSG\")))"
+    jq -c "select(.status!=200 or (.err != null) or (.body | test(\"$ERR_MSG\")))"
     ;;
 esac
