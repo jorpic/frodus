@@ -1,0 +1,12 @@
+[project]
+name = "sud-delo"
+version = "0.1.0"
+description = "Fetching cases from russian courts"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fake-useragent>=2.2.0",
+    "parsel>=1.10.0",
+    "requests>=2.32.5",
+    "urllib3>=2.5.0",
+]

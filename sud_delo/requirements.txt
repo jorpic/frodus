@@ -1,4 +1,0 @@
-fake_useragent
-requests
-urllib3
-parsel

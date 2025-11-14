@@ -17,11 +17,19 @@ trap clean_exit INT
 fetch() {
   local date=$1
   local urls=$2
-  jq -c ".[] | {date: \"$date\", sud: .url}" $urls \
+  local date_fmt=$(date -d $date +%d.%m.%Y)
+  local query="/modules.php?name=sud_delo&srv_num=1&H_date=$date_fmt"
+  jq -c \
+      ".[] | { \
+        date: \"$date\", \
+        sud: .url, \
+        url: (\"https://\" +.url + \"$query\") \
+      }" \
+      $urls \
     | sort -R \
     | ./fetch.py \
     | xz \
-    > ${date}.0.jsonl.xz
+    > ${date}.sch.raw.0.jsonl.xz
 }
 
 JOBS_STARTED=0

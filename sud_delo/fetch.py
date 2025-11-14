@@ -14,22 +14,9 @@ requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 ua = fake_useragent.UserAgent()
 rq = requests.Session()
 
-
 for ln in sys.stdin:
     task = json.loads(ln)
-    sud = task['sud']
-    date = task['date']
-    date_str = datetime.fromisoformat(date).strftime("%d.%m.%Y")
-    query = (
-        f'https://{sud}/modules.php'
-        f'?name=sud_delo&srv_num=1&H_date={date_str}')
-
-    res = {
-        'date': date,
-        'sud': sud,
-        't': datetime.now().isoformat(),
-        }
-
+    task['t'] = datetime.now().isoformat()
     start_time = time.perf_counter()
 
     try:
@@ -43,11 +30,11 @@ for ln in sys.stdin:
             'User-Agent': ua.random
         })
 
-        rsp = rq.get(url=query, verify=False, timeout=90)
-        res['status'] = rsp.status_code
-        res['body'] = rsp.text
+        rsp = rq.get(url=task['url'], verify=False, timeout=90)
+        task['status'] = rsp.status_code
+        task['body'] = rsp.text
     except Exception as err:
-        res['err'] = repr(err)
+        task['err'] = repr(err)
 
-    res['d'] = f'{time.perf_counter() - start_time:.6f}'
-    print(json.dumps(res, ensure_ascii=False))
+    task['d'] = f'{time.perf_counter() - start_time:.6f}'
+    print(json.dumps(task, ensure_ascii=False))

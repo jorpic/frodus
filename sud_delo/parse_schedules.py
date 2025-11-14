@@ -24,33 +24,41 @@ ERR_MSG_1 = 'Информация временно недоступна. При�
 
 ERR_MSG_2 = 'Не определен ни один сервер, на котором расположен модуль сопряжения с БД'
 
+def get_err(obj):
+    if 'err' in obj:
+        return obj['err']
+
+    if obj['status'] != 200:
+        return 'bad status'
+
+    body = obj['body']
+    if body.find(ERR_MSG_1) != -1:
+        return 'try again'
+
+    if body.find(ERR_MSG_2) != -1:
+        return 'DB err'
+
+
 def main():
     for ln in sys.stdin:
-        js = json.loads(ln)
-        if 'err' in js:
-            print(js.get('sud'), js['err'], file=sys.stderr)
+        obj = json.loads(ln)
+        err = get_err(obj)
+        if err:
+            obj['err'] = err
+            print(json.dumps(obj, ensure_ascii=False), file=sys.stderr)
             continue
 
-        if js['status'] != 200:
-            print(js.get('sud'), 'err: status', file=sys.stderr)
-            continue
-
-        body = js['body']
-        if body.find(ERR_MSG_1) != -1:
-            print(js.get('sud'), 'err: try again', file=sys.stderr)
-            continue
-
-        if body.find(ERR_MSG_2) != -1:
-            print(js.get('sud'), 'err: DB', file=sys.stderr)
-            continue
-
-        res = parse(body)
+        res = parse(obj['body'])
         if isinstance(res, Ok):
-            for case in res.value:
-                case['sud'] = js['sud']
-                case['date'] = js['date']
-                print(json.dumps(case, ensure_ascii=False))
+            sch = {
+                'sud': obj['sud'],
+                'date': obj['date'],
+                't': obj['t'],
+                'cases': res.value
+            }
+            print(json.dumps(sch, ensure_ascii=False))
         else:
-            print(js.get('sud'), res.value, file=sys.stderr)
+            obj['err'] = res.value
+            print(json.dumps(obj, ensure_ascii=False), file=sys.stderr)
 
 main()
