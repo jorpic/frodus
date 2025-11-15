@@ -44,7 +44,7 @@ def parse_cases(html):
                 'result': all_text(td[6]),
                 'docs':   td[7].xpath('.//@href').getall()})
     except Exception as err:
-        return Err(('parse error', err))
+        return Err(('parse error', repr(err)))
     return Ok(cases)
 
 def is_valid_header(header):
