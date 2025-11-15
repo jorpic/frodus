@@ -3,6 +3,7 @@
 import sys
 import json
 
+import parsel
 import formats.F1 as F1
 import formats.F2 as F2
 from formats.commons import Ok, Err
@@ -25,9 +26,13 @@ def parse(obj):
     if body.find(ERR_MSG_2) != -1:
         return Err('DB err')
 
+    if body.find('дел не назначено') != -1:
+        return Ok([])
+
     errs = []
+    selector = parsel.Selector(text=body)
     for p in [F1.parse_cases, F2.parse_cases]:
-        res = p(body)
+        res = p(selector)
         if isinstance(res, Ok):
             return Ok(res.value)
         elif isinstance(res, Err):

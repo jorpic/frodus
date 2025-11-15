@@ -1,20 +1,14 @@
-import parsel
 from formats.commons import Ok, Err, all_text
 
-
-def parse_cases(html):
-    p = parsel.Selector(text=html)
-    table = p.xpath('//div[@id="resultTable"]/table')
+def parse_cases(sel):
+    table = sel.xpath('//div[@id="resultTable"]/table')
 
     if len(table) == 0:
-        if html.find('дел не назначено') != -1:
-            return Ok([])
-        else:
-            return Err('unusual html')
+        return Err('no table found')
 
     rows = table.xpath('.//tr')
     if len(rows) == 0:
-        return Err('no rows in tablcont')
+        return Err('no rows in resultTable')
 
     header = [
         ' '.join(col.xpath('.//text()').getall())
