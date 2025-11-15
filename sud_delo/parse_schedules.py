@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
-import json
+import orjson
 
 import parsel
 import formats.F1 as F1
@@ -43,7 +43,7 @@ def parse(obj):
 
 def main():
     for ln in sys.stdin:
-        obj = json.loads(ln)
+        obj = orjson.loads(ln)
         res = parse(obj)
         if isinstance(res, Ok):
             sch = {
@@ -52,10 +52,10 @@ def main():
                 't': obj['t'],
                 'cases': res.value
             }
-            print(json.dumps(sch, ensure_ascii=False))
+            print(orjson.dumps(sch).decode('utf-8'))
         else:
             del obj['body']
             obj['err'] = res.value
-            print(json.dumps(obj, ensure_ascii=False), file=sys.stderr)
+            print(orjson.dumps(obj).decode('utf-8'), file=sys.stderr)
 
 main()
