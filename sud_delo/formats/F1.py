@@ -27,9 +27,11 @@ def parse_cases(html):
     cases = []
     try:
         for row in rows[1:]:
-            new_cat = row.xpath('.//td[@colspan="8"]//text()').get()
+            new_cat = row.xpath('.//td[@colspan="8"]')
             if new_cat:
-                category = new_cat
+                # There could be no text inside, so we use
+                # `string(.)` to convert.
+                category = new_cat.xpath('string(.)').get()
                 continue
 
             td = row.xpath('.//td')
