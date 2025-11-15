@@ -20,13 +20,13 @@ def parse(obj):
         return Err('bad status')
 
     body = obj['body']
-    if body.find(ERR_MSG_1) != -1:
+    if ERR_MSG_1 in body:
         return Err('try again')
 
-    if body.find(ERR_MSG_2) != -1:
+    if ERR_MSG_2 in body:
         return Err('DB err')
 
-    if body.find('дел не назначено') != -1:
+    if 'дел не назначено' in body:
         return Ok([])
 
     errs = []
