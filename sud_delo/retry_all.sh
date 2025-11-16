@@ -13,23 +13,16 @@ trap clean_exit INT
 
 
 retry() {
-  local file=$1
-  local err_file=${file/$ROUND.jsonl.xz/${ROUND}.err.jsonl.xz}
-  local new_file=${file/$ROUND.jsonl.xz/$((ROUND+1)).jsonl.xz}
+  local err_file=$1
+  local new_file=${err_file/err.$ROUND.jsonl/res.$((ROUND+1)).jsonl.xz}
 
-  xzcat $file | ./filter_results.sh bad | xz > $err_file
-
-  echo `date --iso-8601=seconds` ' -- ' \
-    $file \
-    `xzcat $err_file | wc -l`
-
-  xzcat $err_file | ./fetch.py | xz > $new_file
+  cat $err_file | ./fetch.py | xz > $new_file
 }
 
 
 JOBS_STARTED=0
 
-ls *.${ROUND}.jsonl.xz | {
+ls *.sch.err.${ROUND}.jsonl | {
   while IFS= read -r file; do
     retry $file &
 
