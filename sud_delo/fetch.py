@@ -25,8 +25,6 @@ for ln in sys.stdin:
             'Accept-Language': 'ru-RU,ru;q=0.5',
             'Accept-Encoding': 'gzip, deflate, br',
             'Content-Type': 'application/json; charset=utf-8',
-            'Origin': f'https://{sud}',
-            'Referer': f'https://{sud}',
             'User-Agent': ua.random
         })
 
