@@ -17,8 +17,11 @@ rq = requests.Session()
 for ln in sys.stdin:
     task = json.loads(ln)
     task['t'] = datetime.now().isoformat()
-    start_time = time.perf_counter()
 
+    if 'err' in task:
+        del task['err']
+
+    start_time = time.perf_counter()
     try:
         rq.headers.update({
             'Accept': 'application/json, text/javascript, */*; q=0.01',

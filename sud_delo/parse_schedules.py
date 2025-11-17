@@ -9,7 +9,6 @@ import formats.F2 as F2
 from formats.commons import Ok, Err
 
 ERR_MSG_1 = 'Информация временно недоступна. Приносим свои извинения. Попробуйте обратиться позже или обратитесь непосредственно в суд.'
-
 ERR_MSG_2 = 'Не определен ни один сервер, на котором расположен модуль сопряжения с БД'
 
 def parse(obj):
@@ -54,7 +53,8 @@ def main():
             }
             print(orjson.dumps(sch).decode('utf-8'))
         else:
-            del obj['body']
+            if 'body' in obj:
+                del obj['body']
             obj['err'] = res.value
             print(orjson.dumps(obj).decode('utf-8'), file=sys.stderr)
 
