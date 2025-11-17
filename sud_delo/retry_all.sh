@@ -14,8 +14,9 @@ trap clean_exit INT
 
 retry() {
   local err_file=$1
-  local new_file=${err_file/err.$ROUND.jsonl/res.$((ROUND+1)).jsonl.xz}
+  local new_file=${err_file/err.$ROUND.jsonl/raw.$((ROUND+1)).jsonl.xz}
 
+  echo `date --iso-8601=seconds` ' -- ' $(wc -l $err_file)
   cat $err_file | ./fetch.py | xz > $new_file
 }
 
