@@ -20,7 +20,7 @@ fetch() {
   local date_fmt=$(date -d $date +%d.%m.%Y)
   local query="/modules.php?name=sud_delo&srv_num=1&H_date=$date_fmt"
   jq -c \
-      ".[] | { \
+      ".[] | select(.query != \"alt\") | { \
         date: \"$date\", \
         sud: .url, \
         url: (\"https://\" +.url + \"$query\") \
