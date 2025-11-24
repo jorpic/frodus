@@ -11,6 +11,8 @@ from formats.commons import Ok, Err
 ERR_MSG_1 = 'Информация временно недоступна. Приносим свои извинения. Попробуйте обратиться позже или обратитесь непосредственно в суд.'
 ERR_MSG_2 = 'Не определен ни один сервер, на котором расположен модуль сопряжения с БД'
 
+ERR_MSG_3 = 'Обратитесь к странице позже'
+
 def parse(obj):
     if 'err' in obj:
         return Err(obj['err'])
@@ -24,6 +26,9 @@ def parse(obj):
 
     if ERR_MSG_2 in body:
         return Err('DB err')
+
+    if ERR_MSG_3 in body:
+        return Err('try later')
 
     if 'дел не назначено' in body:
         return Ok([])
