@@ -1,13 +1,99 @@
+Загрузка расписаний происходит следующим образом:
+- формирование запросов на основе списка судов
+- загрузка страниц (сохраняются в исходном виде для возможности
+  дополнительного анализа)
+- преобразование расписаний в JSON, выявление ошибок
+- повторное выполнение запросов вернувшихся в первый раз с ошибкой
+
 ```
 uv run $SHELL
- ./fetch_schedules.sh 2021-02-21 2022-08-01 urls.json
- ./parse_schedules.sh *sch.raw.0*
- ./retry_all.sh 0
- -- revert ls in ./retry_all.sh
- -- ./parse_schedules.sh *sch.raw.1*
+./task_schedules.sh 2021-01-01 2022-08-01 urls.json
+# -> sch.task.xz
+
+ls *sch.task* | xargs -n1 -P5 ./fetch.sh task raw.0
+# sch.task.xz -> sch.raw.0.xz
+
+ls *sch.raw.0* | xargs -n1 -P5 ./parse_schedules.sh
+# sch.raw.0 -> sch.res.0 + sch.err.0
+
+ls *sch.err.0* | xargs -n1 -P3 ./fetch.sh err.0 raw.1
+# sch.err.0 -> sch.raw.1
+
+ls *sch.raw.1* | xargs -n1 -P5 ./parse_schedules.sh
+# sch.raw.1 -> sch.res.1 + sch.err.1
 ```
 
-- Enter `uv` shell and install reqs
+Загрузка расписаний проводилась в несколько этапов. В ходе анализа результатов обновлялась информация о форматах запросов и типах ошибок.
+
+Данные за ххх загружены в период с ххх по ххх.
+
+Данные за 2021-01 − 2022-07 загружены в период с 2025-11-17 по 2025-11-24.
+
+По итогам анализа ошибок были выявлены суды, не поддерживающие стандартный
+формат запросов.
+
+```bash
+jq -r .sud 2025*.sch.err.2* | sort | uniq -c | sort -rn | less
+```
+
+> digorsky--wlk.sudrf.ru
+> irafsky--wlk.sudrf.ru
+> tere-holskiy--tva.sudrf.ru
+> m-taiginskiy--tva.sudrf.ru
+> todjinskiy--tva.sudrf.ru
+> osipenko--hbr.sudrf.ru
+> rovensky--blg.sudrf.ru
+> b-murashkinsky--nnov.sudrf.ru
+> peschanokopsky--ros.sudrf.ru
+> martinovsky--ros.sudrf.ru
+> salsky--ros.sudrf.ru
+> orlovsky--ros.sudrf.ru
+> celinsky--ros.sudrf.ru
+> miloslavsky--riz.sudrf.ru
+> starozhilovsky--riz.sudrf.ru
+> tomarinskiy--sah.sudrf.ru
+> bred--chel.sudrf.ru
+> troickr--chel.sudrf.ru
+> nagaib--chel.sudrf.ru
+> chesm--chel.sudrf.ru
+> 80gvs--msk.sudrf.ru
+> www.mos-gorsud.ru
+
+
+**TODO**: 
+
+- собрать ссылки на дела по:
+    - 20.1 часть 1 КоАП РФ - административная
+    - 158 кража - уголовная
+
+```
+xzcat *res*xz \
+  | jq -r \
+    '.sud as $sud \
+    | .cases[] | select(.info | contains("158")) \
+    | "https://" + $sud + .url' \
+  > all_158.urls
+sort all_158.urls | uniq > uniq_158.urls
+jq -cR '{url: .}' 158_urls > 158.info.jsonl
+split -d -n l/50 158.info.jsonl 158.info.part
+
+ls *info.task?? | xargs -n1 -P5 ./fetch.sh task raw.0
+```
+
+l in 'l/50' prevents from splitting midline
+
+- отфильтровать query=alt из ошибок и перезакачать остальные
+- выбрать ERR_3 из raw, выкинуть их из res (или перезаписать поверх при
+  слиянии результатов?)
+
+- перезакачать ERR_3
+
+- проанализировать оставшиеся ошибки
+    - diff counts err.1 vs err.2
+    - посмотреть те, которые не меняются
+
+- ./group_by.py sud
+
 
 fetch_all.sh gets date interval, generates download tasks, handles them to fetch.sh and saves results into $date.sch.raw.0.jsonl.xz
 
@@ -32,6 +118,7 @@ for f in `ls *jsonl.xz` ; do
 done
 ```
 
+Статистика по количеству заседаний.
 
 ```bash
 for f in $(ls *sudrf*.jsonl.xz) ; do
@@ -41,31 +128,15 @@ for f in $(ls *sudrf*.jsonl.xz) ; do
 done | xz > all.stats.xz
 ```
 
+Есть суды у которых слишком мало заседаний. В некоторых случаях это может
+сигнализировать об особеностях запроса. Например
+[Вачский](https://vachsky--nnov.sudrf.ru/modules.php?name=sud_delo).
 
-Find courts with unusual query format:
-```bash
-jq -r .sud 2025*.sch.err.2* | sort | uniq -c | sort -rn | less
-```
+> Наш суд использует несколько серверов (источников данных) подсистемы
+> «Судебное делопроизводство». Выберите сервер для продолжения работы с
+> разделом.
 
-digorsky--wlk.sudrf.ru
-irafsky--wlk.sudrf.ru
-tere-holskiy--tva.sudrf.ru
-m-taiginskiy--tva.sudrf.ru
-todjinskiy--tva.sudrf.ru
-osipenko--hbr.sudrf.ru
-rovensky--blg.sudrf.ru
-b-murashkinsky--nnov.sudrf.ru
-peschanokopsky--ros.sudrf.ru
-martinovsky--ros.sudrf.ru
-salsky--ros.sudrf.ru
-orlovsky--ros.sudrf.ru
-celinsky--ros.sudrf.ru
-miloslavsky--riz.sudrf.ru
-starozhilovsky--riz.sudrf.ru
-tomarinskiy--sah.sudrf.ru
-bred--chel.sudrf.ru
-troickr--chel.sudrf.ru
-nagaib--chel.sudrf.ru
-chesm--chel.sudrf.ru
-80gvs--msk.sudrf.ru
-www.mos-gorsud.ru
+**TODO**: Пройтись по всему списку и поискать "несколько серверов" и "srv_num=\d".
+
+
+
