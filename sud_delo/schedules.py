@@ -4,9 +4,10 @@ import sys
 import orjson
 
 import parsel
-import formats.F1 as F1
-import formats.F2 as F2
+import formats.Sch1 as Sch1
+import formats.Sch2 as Sch2
 from formats.commons import Ok, Err
+import formats.schedule
 
 ERR_MSG_1 = 'Информация временно недоступна. Приносим свои извинения. Попробуйте обратиться позже или обратитесь непосредственно в суд.'
 ERR_MSG_2 = 'Не определен ни один сервер, на котором расположен модуль сопряжения с БД'
@@ -33,22 +34,17 @@ def parse(obj):
     if 'дел не назначено' in body:
         return Ok([])
 
-    errs = []
     selector = parsel.Selector(text=body)
-    for p in [F1.parse_cases, F2.parse_cases]:
-        res = p(selector)
-        if isinstance(res, Ok):
-            return Ok(res.value)
-        elif isinstance(res, Err):
-            errs.append(res.value)
-        else:
-            errs.append(('unexpected parser result', res))
-    return Err(errs)
+    try:
+        return Ok(formats.schedule.parse(selector))
+    except Exception as e:
+        return Err(str(e))
 
 def main():
     for ln in sys.stdin:
         obj = orjson.loads(ln)
         res = parse(obj)
+
         if isinstance(res, Ok):
             sch = {
                 'sud': obj['sud'],
