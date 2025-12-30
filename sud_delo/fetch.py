@@ -24,10 +24,9 @@ for ln in sys.stdin:
     start_time = time.perf_counter()
     try:
         rq.headers.update({
-            'Accept': 'application/json, text/javascript, */*; q=0.01',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             'Accept-Language': 'ru-RU,ru;q=0.5',
             'Accept-Encoding': 'gzip, deflate, br',
-            'Content-Type': 'application/json; charset=utf-8',
             'User-Agent': ua.random
         })
 
