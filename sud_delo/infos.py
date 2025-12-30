@@ -44,8 +44,11 @@ def main():
         obj = orjson.loads(ln)
         res = parse(obj)
         if isinstance(res, Ok):
-            res = res.value
-            res['url'] = obj['url']
+            res = {
+                't': obj['t'],
+                'url': obj['url'],
+            }
+            res.update(res.value)
             print(orjson.dumps(res).decode('utf-8'))
         else:
             if 'body' in obj:
