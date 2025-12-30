@@ -7,8 +7,8 @@ out_file=${in_file/$old_tag/$new_tag}
 
 if [[ "$in_file" == *'.xz' ]] ; then
   echo `date --iso-8601=seconds` ' -- ' $in_file
-  xzcat $in_file | ./fetch.py | xz > $out_file
+  xzcat $in_file | ./fetch.py | xz -3 > $out_file
 else
   echo `date --iso-8601=seconds` ' -- ' `wc -l $in_file`
-  ./fetch.py < $in_file | xz > $out_file.xz
+  ./fetch.py < $in_file | xz -3 > $out_file.xz
 fi
