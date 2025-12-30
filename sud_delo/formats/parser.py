@@ -12,9 +12,12 @@ def select(sel, *args):
             pass
 
         if res:
-            return fn(res)
+            if fn:
+                return fn(res)
+            else:
+                return res
 
-    raise ParseErr("no parser selected", args)
+    raise ParseErr("no parser selected", args, sel)
 
 def x(sel, q, *args):
     if sel == None:
@@ -22,6 +25,9 @@ def x(sel, q, *args):
 
     if type(q) is tuple:
         return tuple((x(sel, qq) for qq in q))
+
+    if callable(q):
+        return q(sel) ## FIXME: check args = ()
 
     res = sel.xpath(q[2:])
     res_arity = q[0]
