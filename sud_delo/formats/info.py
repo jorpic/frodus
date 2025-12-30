@@ -52,7 +52,7 @@ def docs1(tabs, tab_id, tab_name):
     doc_names = x(
         tabs,
         f'1n./div[@id="{tab_id}"]',
-        '+n./ul[@class="tabs"]/li',
+        '*n./ul[@class="tabs"]/li',
         ('1s./@id', '1t.'))
     doc_conts = tabs.xpath(
         f'./div[@id="{tab_id}"]/div[@class="contentt"]')
@@ -96,7 +96,7 @@ def docs2(tabs, tab_id, tab_name):
     doc_names = x(
         tabs,
         f'1n.//div[@class="lawcase-tab-content" and @id="{tab_id}"]',
-        '+n.//ul[@id="doc_bookmarks"]/li',
+        '*n.//ul[@id="doc_bookmarks"]/li',
         ('1s./@id', '1t.'))
 
     res = []
