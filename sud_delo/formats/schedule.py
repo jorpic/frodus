@@ -1,68 +1,48 @@
-from formats.parser import x
+from formats.parser import x, select
 
 def parse(sel):
-    rows = None
-    try:
-        rows = x(
-            sel,
-            '1n//div[@id="content"]//table[@id="tablcont"]',
-            '+n.//tr')
-    except Exception as e:
-        pass
-
-    if rows:
-        return parse1(rows)
-
-    try:
-        rows = x(
-            sel,
-            '1n//div[@id="resultTable"]/table',
-            '+n.//tr')
-    except Exception as e:
-        pass
-
-    if rows:
-        return parse2(rows)
-
-    raise Exception("can't parse")
+    return select(sel,
+        (['1n//div[@id="content"]//table[@id="tablcont"]', '+n.//tr'], parse1),
+        (['1n//div[@id="resultTable"]/table', '+n.//tr'], parse2)
+    )
 
 def parse1(rows):
-    header = x(rows[0], '8n.//td', '+s.//text()')
+    header = x(rows[0], '8t.//td')
     if not is_valid_header1(header):
-        raise Exception(header)
+        raise Exception(f'Invalid header: {header}')
 
     category = None
     cases = []
     for row in rows[1:]:
-        # There may be no text inside, so we use `string(.)` to convert.
-        new_cat = x(row, '?n.//td[@colspan="8"]', '?sstring(.)')
-        if new_cat:
+        # NB. There may be a category with empty title.
+        new_cat = x(row, '?n.//td[@colspan="8"]', '!t.')
+        if new_cat != None:
             category = new_cat
             continue
 
         td = x(row, '8n.//td')
         cases.append({
             'cat':    category,
-            'num':    x(td[1], '+s.//text()'),
-            'url':    x(td[1], '1t.//a/@href'),
-            'time':   x(td[2], '*s.//text()'),
-            'place':  x(td[3], '*s.//text()'),
-            'info':   x(td[4], '+S.//text()'),
-            'judge':  x(td[5], '*s.//text()'),
-            'result': x(td[6], '*s.//text()'),
-            'docs':   x(td[7], '*t.//@href')})
+            'num':    x(td[1], '?t.'),
+            'url':    x(td[1], '1s.//a/@href'),
+            'time':   x(td[2], '?t.'),
+            'place':  x(td[3], '?t.'),
+            'info':   x(td[4], '?T.'),
+            'judge':  x(td[5], '?t.'),
+            'result': x(td[6], '?t.'),
+            'docs':   x(td[7], '*s.//a/@href')})
     return cases
 
 def parse2(rows):
-    header = x(rows[0], '9n.//td', '+s.//text()')
+    header = x(rows[0], '9t.//td')
     if not is_valid_header2(header):
-        raise Exception(header)
+        raise Exception(f'Invalid header: {header}')
 
     category = None
     cases = []
     for row in rows[1:]:
-        # There may be no text inside, so we use `string(.)` to convert.
-        new_cat = x(row, '?n.//td[@colspan="9"]', '?sstring(.)')
+        # NB. There may be a category with empty title.
+        new_cat = x(row, '?n.//td[@colspan="9"]', '!t.')
         if new_cat:
             category = new_cat
             continue
@@ -70,15 +50,15 @@ def parse2(rows):
         td = x(row, '9n.//td')
         cases.append({
             'cat':    category,
-            'num':    x(td[1], '+s.//text()'),
-            'url':    x(td[1], '1t.//a/@href'),
-            'time':   x(td[2], '*s.//text()'),
-            'event':  x(td[3], '*s.//text()'),
-            'place':  x(td[4], '*s.//text()'),
-            'info':   x(td[5], '+S.//text()'),
-            'judge':  x(td[6], '*s.//text()'),
-            'result': x(td[7], '*s.//text()'),
-            'docs':   x(td[8], '*t.//@href')})
+            'num':    x(td[1], '?t.'),
+            'url':    x(td[1], '1s.//a/@href'),
+            'time':   x(td[2], '?t.'),
+            'event':  x(td[3], '?t.'),
+            'place':  x(td[4], '?t.'),
+            'info':   x(td[5], '?T.'),
+            'judge':  x(td[6], '?t.'),
+            'result': x(td[7], '?t.'),
+            'docs':   x(td[8], '*s.//a/@href')})
     return cases
 
 def is_valid_header1(header):

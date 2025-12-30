@@ -4,8 +4,6 @@ import sys
 import orjson
 
 import parsel
-import formats.Sch1 as Sch1
-import formats.Sch2 as Sch2
 from formats.commons import Ok, Err
 import formats.schedule
 
@@ -38,7 +36,7 @@ def parse(obj):
     try:
         return Ok(formats.schedule.parse(selector))
     except Exception as e:
-        return Err(str(e))
+        return Err(('parse error', str(e)))
 
 def main():
     for ln in sys.stdin:
