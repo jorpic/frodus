@@ -11,6 +11,7 @@ ERR_MSG_1 = 'Информация временно недоступна.'
 ERR_MSG_2 = 'Не определен ни один сервер, на котором расположен модуль сопряжения с БД'
 ERR_MSG_3 = 'Обратитесь к странице позже'
 ERR_MSG_4 = 'НЕВЕРНЫЙ ФОРМАТ ЗАПРОСА'
+ERR_MSG_5 = 'Trying to access array offset on value of type null'
 
 def parse(obj):
     if 'err' in obj:
@@ -31,6 +32,9 @@ def parse(obj):
 
     if ERR_MSG_4 in body:
         return Err('invalid query format')
+
+    if ERR_MSG_5 in body:
+        return Err('PHP bug')
 
     errs = []
     selector = parsel.Selector(text=body)

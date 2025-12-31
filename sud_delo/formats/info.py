@@ -28,25 +28,21 @@ def parse2(info):
     }
     tab_names = x(info, '+n.//ul[@id="case_bookmarks"]/li', ('1s./@id', '1t.'))
     for (tab_id, tab_name) in tab_names:
+        tab_id = tab_id.replace('tab_id', 'tab_content')
+        if tab_name.startswith('Судебный акт '):
+            res[tab_name] = inline_doc2(info, tab_id, tab_name)
+            continue
         if tab_name not in known_tabs2:
             raise Exception(f'2: Unknown tab {tab_name}')
-        tab_id = tab_id.replace('tab_id', 'tab_content')
         res[tab_name] = known_tabs2[tab_name](info, tab_id, tab_name)
     return res
 
-def table1_1(tabs, tab_id, tab_name):
+def table1(tabs, tab_id, tab_name):
     return x(
         tabs,
         f'1n./div[@id="{tab_id}"]/table',
         '+n./tr[position() > 1]',
         '*n./td', '1t.')
-
-def table1_n(tabs, tab_id, tab_name):
-    return x(
-        tabs,
-        f'1n./div[@id="{tab_id}"]/table',
-        '+n./tr[position() > 1]',
-        '+n./td', '1t.')
 
 def docs1(tabs, tab_id, tab_name):
     doc_names = x(
@@ -78,19 +74,12 @@ def claim(tabs, tab_id, tab_name):
     )
 
 
-def table2_1(tabs, tab_id, tab_name):
+def table2(tabs, tab_id, tab_name):
     return x(
         tabs,
         f'1n.//div[@id="{tab_id}"]/table',
         '+n./tr',
         '*n./td', '1t.')
-
-def table2_n(tabs, tab_id, tab_name):
-    return x(
-        tabs,
-        f'1n.//div[@id="{tab_id}"]/table',
-        '+n.//tr',
-        '+n./td', '1t.')
 
 def docs2(tabs, tab_id, tab_name):
     doc_names = x(
@@ -109,6 +98,21 @@ def docs2(tabs, tab_id, tab_name):
 def inline_doc2(tabs, tab_id, tab_name):
     return x(tabs, f'1n.//div[@id="{tab_id}"]/table', '1T.')
 
+def req_list(tabs, tab_id, tab_name):
+    # table2_n
+    t1 = x(
+        tabs,
+        f'1n.//div[@id="{tab_id}"]/table',
+        '+n.//tr',
+        '+n./td', '1t.')
+    # table2_1
+    t2 = x(
+        tabs,
+        f'?n.//div[@id="{tab_id}"]/div/table',
+        '+n./tr',
+        '*n./td', '1t.')
+    return [t1, t2]
+
 def not_implemented(tabs, tab_id, tab_name):
     tab = x(
         tabs,
@@ -116,46 +120,52 @@ def not_implemented(tabs, tab_id, tab_name):
     raise Exception((tab_name, tab))
 
 known_tabs1 = {
-    'ДВИЖЕНИЕ ДЕЛА': table1_n,
-    'ДВИЖЕНИЕ МАТЕРИАЛА': table1_n,
-    'ДЕЛО': table1_1,
-    'ЖАЛОБЫ': table1_n,
-    'ИСПОЛНИТЕЛЬНЫЕ ЛИСТЫ': table1_n,
-    'ЛИЦА': table1_n,
+    'ДВИЖЕНИЕ ДЕЛА': table1, #_n,
+    'ДВИЖЕНИЕ МАТЕРИАЛА': table1, #_n,
+    'ДЕЛО': table1, #_1,
+    'ЖАЛОБЫ': table1, #_n,
+    'ИСПОЛНИТЕЛЬНЫЕ ЛИСТЫ': table1, #_n,
+    'ЛИЦА': table1, #_n,
     'ОБЖАЛОВАНИЕ В ВЫШЕСТОЯЩИЙ СУД': claim,
-    'ОБЖАЛОВАНИЕ ОПРЕДЕЛЕНИЙ КАССАЦИОННОЙ ИНСТАНЦИИ': table1_1,
+    'ОБЖАЛОВАНИЕ ОПРЕДЕЛЕНИЙ КАССАЦИОННОЙ ИНСТАНЦИИ': table1, #_1,
     'ОБЖАЛОВАНИЕ ПРИГОВОРОВ ОПРЕДЕЛЕНИЙ (ПОСТ.)': claim,
     'ОБЖАЛОВАНИЕ РЕШЕНИЙ, ОПРЕДЕЛЕНИЙ (ПОСТ.)': claim,
-    'ОГРАНИЧЕНИЯ ДОСТУПА': table1_1,
-    'ПРОИЗВОДСТВО': table1_1,
-    'РАССМОТРЕНИЕ В НИЖЕСТОЯЩЕМ СУДЕ': table1_1,
-    'СЛУШАНИЯ': table1_n,
-    'СТОРОНЫ': table1_n,
-    'СТОРОНЫ ПО ДЕЛУ': table1_n,
-    'СТОРОНЫ ПО ДЕЛУ (ТРЕТЬИ ЛИЦА)': table1_n,
+    'ОГРАНИЧЕНИЯ ДОСТУПА': table1, #_1,
+    'ПЕРЕСМОТР В ВЫШЕСТОЯЩЕЙ ИНСТАНЦИИ': claim,
+    'ПЕРЕСМОТР ПОСТАНОВЛЕНИЙ И РЕШЕНИЙ': claim,
+    'ПРОИЗВОДСТВО': table1, #_1,
+    'РАССМОТРЕНИЕ В НИЖЕСТОЯЩЕМ СУДЕ': table1, #_1,
+    'СЛУШАНИЯ': table1, #_n,
+    'СТОРОНЫ': table1, #_n,
+    'СТОРОНЫ ПО ДЕЛУ': table1, #_n,
+    'СТОРОНЫ ПО ДЕЛУ (ТРЕТЬИ ЛИЦА)': table1, #_n,
     'СУДЕБНЫЕ АКТЫ': docs1,
-    'УЧАСТНИКИ': table1_n,
+    'ТРЕБОВАНИЯ ПО КОЛЛЕКТИВНЫМ ИСКАМ': table1, #_1,
+    'УЧАСТНИКИ': table1, #_n,
 }
 
 known_tabs2 = {
-    'Движение дела': table2_n,
-    'Движение материала': table2_n,
-    'Дело': table2_1,
-    'Исполнительные листы': table2_n,
-    'Лица': table2_n,
-    'Материал': table2_1,
+    'Движение дела': table2, #_n,
+    'Движение материала': table2, #_n,
+    'Дело': table2, #_1,
+    'Исполнительные листы': table2, #_n,
+    'Лица': table2, #_n,
+    'Материал': table2, #_1,
     'Обжалования': claim,
-    'Рассмотрение в нижестоящем суде': table2_1,
-    'Стороны': table2_n,
+    'Ограничения доступа': table2, #_1,
+    'Рассмотрение в нижестоящем суде': table2, #_1,
+    'Стороны': table2, #_n,
     'Судебные акты': docs2,
     'Судебный акт #1 ()': inline_doc2,
-    'Судебный акт #1 (Не определен)': inline_doc2,
-    'Судебный акт #1 (Определение)': inline_doc2,
-    'Судебный акт #1 (Приговор)': inline_doc2,
-    'Судебный акт #1 (Приговоры)': inline_doc2,
-    'Судебный акт #1 (Постановление)': inline_doc2,
-    'Судебный акт #1 (Постановления)': inline_doc2,
-    'Судебный акт #2 (Постановление)': inline_doc2,
-    'Судебный акт #2 (Приговор)': inline_doc2,
-    'Требования': table2_n,
+    # ^^^ lots of them with different names
+    'Требования': table2, #_n,
+    'Требования по коллективным искам': req_list,
 }
+
+
+'''
+    148 "len(res)=0: 1t.//div[@class=\"name-instanse\"], [<Selector query='//div[@id=\"modSdpContent\"]//div[@id=\"search_results\"]' data='<div id=\"search_results\">\\n\\t\\t\\n2025-12-...'>]"]}
+
+     98 "len(res)=0: 1t.//div[@class=\"name-instanse\"], [<Selector query='//div[@id=\"modSdpContent\"]//div[@id=\"search_results\"]' data='<div id=\"search_results\">\\n\\t\\t\\n2025-12-...'>]"]}
+
+'''
