@@ -2,8 +2,9 @@
 
 parser=$1
 file=$2
-res_file=${file/raw/res}
-err_file=${file/raw/err}
+# Substitute only the last occurence of a tag:
+res_file="${file%.raw.*}.res.${file##*.raw.}"
+err_file="${file%.raw.*}.err.${file##*.raw.}"
 err_file=${err_file%.xz}
 
 echo `date --iso-8601=sec` ' -- ' $file
