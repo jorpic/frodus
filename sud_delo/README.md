@@ -1,3 +1,9 @@
+
+
+```
+find /sud/info/ -name '*raw*' -type f | sort | xargs -n1 ./parse.sh ./infos.py
+```
+
 Загрузка расписаний происходит следующим образом:
 - формирование запросов на основе списка судов
 - загрузка страниц (сохраняются в исходном виде для возможности
@@ -5,29 +11,6 @@
 - преобразование расписаний в JSON, выявление ошибок
 - повторное выполнение запросов вернувшихся в первый раз с ошибкой
 
-```
-uv run $SHELL
-./task_schedules.sh 2021-01-01 2022-08-01 urls.json
-# -> sch.task.xz
-
-ls *sch.task* | xargs -n1 -P5 ./fetch.sh task raw.0
-# sch.task.xz -> sch.raw.0.xz
-
-ls *sch.raw.0* | xargs -n1 -P5 ./parse_schedules.sh
-# sch.raw.0 -> sch.res.0 + sch.err.0
-
-ls *sch.err.0* | xargs -n1 -P3 ./fetch.sh err.0 raw.1
-# sch.err.0 -> sch.raw.1
-
-ls *sch.raw.1* | xargs -n1 -P5 ./parse_schedules.sh
-# sch.raw.1 -> sch.res.1 + sch.err.1
-```
-
-Загрузка расписаний проводилась в несколько этапов. В ходе анализа результатов обновлялась информация о форматах запросов и типах ошибок.
-
-Данные за ххх загружены в период с ххх по ххх.
-
-Данные за 2021-01 − 2022-07 загружены в период с 2025-11-17 по 2025-11-24.
 
 По итогам анализа ошибок были выявлены суды, не поддерживающие стандартный
 формат запросов.
@@ -35,29 +18,6 @@ ls *sch.raw.1* | xargs -n1 -P5 ./parse_schedules.sh
 ```bash
 jq -r .sud 2025*.sch.err.2* | sort | uniq -c | sort -rn | less
 ```
-
-> digorsky--wlk.sudrf.ru
-> irafsky--wlk.sudrf.ru
-> tere-holskiy--tva.sudrf.ru
-> m-taiginskiy--tva.sudrf.ru
-> todjinskiy--tva.sudrf.ru
-> osipenko--hbr.sudrf.ru
-> rovensky--blg.sudrf.ru
-> b-murashkinsky--nnov.sudrf.ru
-> peschanokopsky--ros.sudrf.ru
-> martinovsky--ros.sudrf.ru
-> salsky--ros.sudrf.ru
-> orlovsky--ros.sudrf.ru
-> celinsky--ros.sudrf.ru
-> miloslavsky--riz.sudrf.ru
-> starozhilovsky--riz.sudrf.ru
-> tomarinskiy--sah.sudrf.ru
-> bred--chel.sudrf.ru
-> troickr--chel.sudrf.ru
-> nagaib--chel.sudrf.ru
-> chesm--chel.sudrf.ru
-> 80gvs--msk.sudrf.ru
-> www.mos-gorsud.ru
 
 
 **TODO**: 
@@ -136,7 +96,7 @@ done | xz > all.stats.xz
 > «Судебное делопроизводство». Выберите сервер для продолжения работы с
 > разделом.
 
+insarsky--mor.sudrf.ru
+> Выбрать другой сервер
+
 **TODO**: Пройтись по всему списку и поискать "несколько серверов" и "srv_num=\d".
-
-
-
