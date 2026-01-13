@@ -7,21 +7,40 @@ from datetime import datetime
 N = int(N)
 
 query = f"""
+  create type case_struct as struct(
+      cat varchar,
+      num varchar,
+      url varchar,
+      "time" time,
+      place varchar,
+      info varchar,
+      judge varchar,
+      result varchar,
+      docs varchar[],
+      "event" varchar
+  );
+
   pragma disable_progress_bar;
   set threads = 1;
   set preserve_insertion_order = false;
   copy (
     select
-      lower(regexp_extract(json->>'url', '&(case)?_uid=(..)', 2)) as p,
-      regexp_extract(json->>'url', '&(case)?_uid=([^&]+)', 2)::uuid as uuid,
-      (json->>'t')::timestamp_s as fetch_time,
-      json,
+      sud, date, url,
+      t::timestamp_s as fetch_time,
+      cases
     from read_json_objects(
       '/dev/stdin',
-      format = 'newline_delimited')
+      format = 'newline_delimited',
+      columns = {
+        sud: "varchar",
+        date: "date",
+        url: "varchar",
+        t: "varchar",
+        cases: "case_struct[]"
+      })
   ) to '{hive_path}/' (
     format parquet,
-    partition_by (p),
+    partition_by (sud),
     compression zstd,
     append);
 """
