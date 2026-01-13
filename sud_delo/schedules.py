@@ -47,6 +47,7 @@ def main():
             sch = {
                 'sud': obj['sud'],
                 'date': obj['date'],
+                'url': obj['url'],
                 't': obj['t'],
                 'cases': res.value
             }
