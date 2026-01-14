@@ -28,16 +28,15 @@ query = f"""
       sud, date, url,
       t::timestamp_s as fetch_time,
       cases
-    from read_json_objects(
+    from read_ndjson(
       '/dev/stdin',
-      format = 'newline_delimited',
-      columns = {
-        sud: "varchar",
-        date: "date",
-        url: "varchar",
-        t: "varchar",
-        cases: "case_struct[]"
-      })
+      columns = {{
+        sud: 'varchar',
+        date: 'date',
+        url: 'varchar',
+        t: 'varchar',
+        cases: 'case_struct[]'
+      }})
   ) to '{hive_path}/' (
     format parquet,
     partition_by (sud),
